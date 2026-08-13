@@ -4,6 +4,7 @@
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Interclubes Regional - AABBM</title>
@@ -23,6 +24,11 @@ body {
     color: #172033;
 }
 
+
+/* =========================
+   CABEÇALHO
+========================= */
+
 header {
     background: #111827;
     color: white;
@@ -41,13 +47,21 @@ header p {
     opacity: .85;
 }
 
+
+/* =========================
+   CONTAINER
+========================= */
+
 .container {
     max-width: 1250px;
     margin: 28px auto;
     padding: 0 18px;
 }
 
-/* MENU */
+
+/* =========================
+   MENU
+========================= */
 
 .menu {
     background: white;
@@ -86,7 +100,10 @@ header p {
     border-color: #0f766e;
 }
 
-/* RESUMO */
+
+/* =========================
+   RESUMO
+========================= */
 
 .resumo {
     background: white;
@@ -99,6 +116,7 @@ header p {
 
 .resumo h2 {
     margin: 0 0 8px;
+    font-size: 28px;
 }
 
 .contador {
@@ -121,7 +139,10 @@ header p {
     font-size: 16px;
 }
 
-/* TABELA */
+
+/* =========================
+   TABELA
+========================= */
 
 .categoria {
     background: white;
@@ -172,11 +193,20 @@ tr:hover {
     background: #f9fafb;
 }
 
+
+/* =========================
+   CONFIRMADO
+========================= */
+
 .status {
     color: #047857;
-
     font-weight: bold;
 }
+
+
+/* =========================
+   MENSAGENS
+========================= */
 
 .vazio {
     background: white;
@@ -210,7 +240,10 @@ tr:hover {
     border-radius: 10px;
 }
 
-/* CELULAR */
+
+/* =========================
+   CELULAR
+========================= */
 
 @media(max-width:700px) {
 
@@ -224,7 +257,6 @@ tr:hover {
 
     .botao {
         font-size: 13px;
-
         padding: 9px 11px;
     }
 
@@ -247,11 +279,15 @@ tr:hover {
 <body>
 
 
+<!-- =========================
+     CABEÇALHO
+========================= -->
+
 <header>
 
-<h1>🏆 Interclubes Regional</h1>
+    <h1>🏆 Interclubes Regional</h1>
 
-<p>AABBM</p>
+    <p>AABBM</p>
 
 </header>
 
@@ -259,58 +295,57 @@ tr:hover {
 <div class="container">
 
 
-<!-- MENU -->
+<!-- =========================
+     MENU
+========================= -->
 
 <div class="menu" id="menu">
 
-<button
-class="botao ativo"
-onclick="selecionar('INSCRITOS', this)"
->
-👥 ATLETAS INSCRITOS
-</button>
-
-<button
-class="botao"
-onclick="selecionar('TODOS', this)"
->
-📋 TODOS OS ATLETAS
-</button>
+    <button
+        class="botao"
+        onclick="selecionar('TODOS', this)"
+    >
+        📋 TODOS OS ATLETAS
+    </button>
 
 </div>
 
 
-<!-- RESUMO -->
+<!-- =========================
+     RESUMO
+========================= -->
 
 <div class="resumo">
 
-<h2 id="titulo">
-Atletas inscritos
-</h2>
+    <h2 id="titulo">
+        Atletas inscritos
+    </h2>
 
-<div
-class="contador"
-id="contador"
->
-0
+    <div
+        class="contador"
+        id="contador"
+    >
+        0
+    </div>
+
+    <input
+        id="busca"
+        class="busca"
+        placeholder="🔎 Pesquisar atleta..."
+    >
+
 </div>
 
-<input
-id="busca"
-class="busca"
-placeholder="🔎 Pesquisar atleta..."
->
 
-</div>
-
-
-<!-- CONTEÚDO -->
+<!-- =========================
+     CONTEÚDO
+========================= -->
 
 <div id="conteudo">
 
-<div class="carregando">
-Carregando planilha...
-</div>
+    <div class="carregando">
+        Carregando planilha...
+    </div>
 
 </div>
 
@@ -322,9 +357,8 @@ Carregando planilha...
 
 
 /* =====================================================
-CONFIGURAÇÃO
+   CONFIGURAÇÃO
 ===================================================== */
-
 
 const arquivoExcel =
 "IC26BT - REGIONAL - AABBM.xlsx";
@@ -340,987 +374,991 @@ let categoriaAtual = "INSCRITOS";
 
 
 /* =====================================================
-NORMALIZAR TEXTO
+   NORMALIZAR TEXTO
 ===================================================== */
-
 
 function normalizar(texto) {
 
-return String(texto || "")
-.trim()
-.toLowerCase()
-.normalize("NFD")
-.replace(/[\u0300-\u036f]/g,"");
+    return String(texto || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
 
 }
 
 
 /* =====================================================
-VERIFICAR SE É CABEÇALHO
+   VERIFICAR CABEÇALHO
 ===================================================== */
-
 
 function ehCabecalho(nome) {
 
-const n =
-normalizar(nome);
+    const n = normalizar(nome);
 
-return (
+    return (
 
-n === "nome" ||
+        n === "nome" ||
 
-n === "codigo" ||
+        n === "codigo" ||
 
-n === "clube" ||
+        n === "clube" ||
 
-n === "categoria" ||
+        n === "categoria" ||
 
-n === "idade" ||
+        n === "idade" ||
 
-n === "confirmacao" ||
+        n === "confirmacao" ||
 
-n === "torneios"
+        n === "torneios"
 
-);
+    );
 
 }
 
 
 /* =====================================================
-CARREGAR EXCEL
+   CARREGAR EXCEL
 ===================================================== */
-
 
 async function carregarExcel() {
 
-try {
+    try {
 
+        const resposta =
+            await fetch(
+                arquivoExcel +
+                "?v=" +
+                Date.now()
+            );
 
-const resposta =
-await fetch(
-arquivoExcel +
-"?v=" +
-Date.now()
-);
 
+        if (!resposta.ok) {
 
-if (!resposta.ok) {
+            throw new Error(
+                "Excel não encontrado"
+            );
 
-throw new Error(
-"Excel não encontrado"
-);
+        }
 
-}
 
+        const dados =
+            await resposta.arrayBuffer();
 
-const dados =
-await resposta.arrayBuffer();
 
+        const workbook =
+            XLSX.read(
+                dados,
+                {
+                    type: "array"
+                }
+            );
 
-const workbook =
-XLSX.read(
-dados,
-{
-type: "array"
-}
-);
 
+        console.log(
+            "Abas encontradas:",
+            workbook.SheetNames
+        );
 
-console.log(
-"Abas encontradas:",
-workbook.SheetNames
-);
 
+        /* =================================================
+           LISTA AABB
+        ================================================= */
 
-/* =====================================================
-LISTA AABB
-===================================================== */
+        if (
+            workbook.SheetNames.includes(
+                "Lista AABB"
+            )
+        ) {
 
+            const sheet =
+                workbook.Sheets[
+                    "Lista AABB"
+                ];
 
-if (
-workbook.SheetNames.includes(
-"Lista AABB"
-)
-) {
 
+            const dadosLista =
+                XLSX.utils.sheet_to_json(
+                    sheet,
+                    {
+                        defval: ""
+                    }
+                );
 
-const sheet =
-workbook.Sheets[
-"Lista AABB"
-];
 
+            todosAtletas =
+                dadosLista
 
-const dadosLista =
-XLSX.utils.sheet_to_json(
-sheet,
-{
-defval: ""
-}
-);
+                    .map(atleta => ({
 
+                        codigo:
+                            atleta["Reg. CBT"] || "",
 
-todosAtletas =
-dadosLista
-.map(atleta => ({
+                        nome:
+                            atleta["Nome"] || "",
 
-codigo:
-atleta["Reg. CBT"] || "",
+                        categoria:
+                            atleta["Categoria"] || "",
 
-nome:
-atleta["Nome"] || "",
+                        torneios:
+                            atleta[
+                                "Torneios Jogados (01/2026)"
+                            ] || "",
 
-categoria:
-atleta["Categoria"] || "",
+                        sexo:
+                            atleta["Sexo"] || ""
 
-torneios:
-atleta[
-"Torneios Jogados (01/2026)"
-] || "",
+                    }))
 
-sexo:
-atleta["Sexo"] || ""
+                    .filter(
+                        atleta =>
+                            atleta.nome &&
+                            !ehCabecalho(
+                                atleta.nome
+                            )
+                    );
 
-}))
-.filter(
-atleta =>
-atleta.nome &&
-!ehCabecalho(atleta.nome)
-);
+        }
 
 
-}
+        /* =================================================
+           ABA GERAL
+        ================================================= */
 
+        if (
+            workbook.SheetNames.includes(
+                "Geral"
+            )
+        ) {
 
-/* =====================================================
-GERAL
-===================================================== */
+            lerCategorias(
+                workbook.Sheets["Geral"]
+            );
 
+        }
 
-if (
-workbook.SheetNames.includes(
-"Geral"
-)
-) {
 
-lerCategorias(
-workbook.Sheets["Geral"]
-);
+        /* =================================================
+           ABA SUBS
+        ================================================= */
 
-}
+        if (
+            workbook.SheetNames.includes(
+                "Subs"
+            )
+        ) {
 
+            lerCategorias(
+                workbook.Sheets["Subs"]
+            );
 
-/* =====================================================
-SUBS
-===================================================== */
+        }
 
 
-if (
-workbook.SheetNames.includes(
-"Subs"
-)
-) {
+        /* =================================================
+           CRIAR BOTÕES
+        ================================================= */
 
-lerCategorias(
-workbook.Sheets["Subs"]
-);
+        criarBotoes();
 
-}
 
+        /* =================================================
+           MOSTRAR INSCRITOS
+        ================================================= */
 
-/* =====================================================
-CRIAR BOTÕES
-===================================================== */
+        mostrar();
 
 
-criarBotoes();
+    }
 
+    catch(erro) {
 
-/* =====================================================
-MOSTRAR INSCRITOS
-===================================================== */
+        console.error(erro);
 
 
-mostrar();
+        document.getElementById(
+            "conteudo"
+        ).innerHTML = `
 
+            <div class="erro">
 
-}
+                <strong>
+                    Erro ao carregar a planilha.
+                </strong>
 
-catch(erro) {
+                <br><br>
 
+                Verifique se o arquivo está no GitHub:
 
-console.error(erro);
+                <br><br>
 
+                <strong>
+                    ${arquivoExcel}
+                </strong>
 
-document.getElementById(
-"conteudo"
-).innerHTML = `
+            </div>
 
-<div class="erro">
+        `;
 
-<strong>
-Erro ao carregar a planilha.
-</strong>
-
-<br><br>
-
-Verifique se o arquivo está no GitHub com o nome:
-
-<br><br>
-
-<strong>
-${arquivoExcel}
-</strong>
-
-</div>
-
-`;
-
-}
+    }
 
 }
 
 
 /* =====================================================
-LER CATEGORIAS
+   LER CATEGORIAS
 ===================================================== */
-
 
 function lerCategorias(sheet) {
 
-
-const linhas =
-XLSX.utils.sheet_to_json(
-sheet,
-{
-header: 1,
-defval: ""
-}
-);
-
-
-let categoria = "";
+    const linhas =
+        XLSX.utils.sheet_to_json(
+            sheet,
+            {
+                header: 1,
+                defval: ""
+            }
+        );
 
 
-linhas.forEach(linha => {
+    let categoria = "";
 
 
-/* -----------------------------------------------
-ENCONTRAR CATEGORIA
------------------------------------------------- */
+    linhas.forEach(linha => {
 
 
-const primeiraColuna =
-String(
-linha[0] || ""
-).trim();
+        /* ================================================
+           IDENTIFICAR CATEGORIA
+        ================================================= */
+
+        const primeiraColuna =
+            String(
+                linha[0] || ""
+            ).trim();
 
 
-if (
-primeiraColuna.startsWith(
-"Categoria "
-)
-) {
+        if (
+            primeiraColuna.startsWith(
+                "Categoria "
+            )
+        ) {
+
+            categoria =
+                primeiraColuna;
 
 
-categoria =
-primeiraColuna;
+            if (
+                !grupos[categoria]
+            ) {
+
+                grupos[categoria] = [];
+
+            }
 
 
-if (
-!grupos[categoria]
-) {
+            return;
 
-grupos[categoria] = [];
-
-}
+        }
 
 
-return;
+        /* ================================================
+           IGNORAR LINHAS ANTES DA CATEGORIA
+        ================================================= */
 
-}
+        if (!categoria) {
 
+            return;
 
-/* -----------------------------------------------
-IGNORAR ANTES DA CATEGORIA
------------------------------------------------- */
-
-
-if (!categoria) {
-
-return;
-
-}
+        }
 
 
-/* -----------------------------------------------
-IGNORAR LINHA DE CABEÇALHO
------------------------------------------------- */
+        /* ================================================
+           PRIMEIRO BLOCO
+        ================================================= */
+
+        adicionarInscrito(
+            linha,
+            0,
+            categoria
+        );
 
 
-const nomeEsquerda =
-String(
-linha[1] || ""
-).trim();
+        /* ================================================
+           SEGUNDO BLOCO
+        ================================================= */
 
+        adicionarInscrito(
+            linha,
+            7,
+            categoria
+        );
 
-const nomeDireita =
-String(
-linha[8] || ""
-).trim();
-
-
-if (
-ehCabecalho(nomeEsquerda)
-) {
-
-return;
-
-}
-
-
-/* -----------------------------------------------
-PRIMEIRO BLOCO
------------------------------------------------- */
-
-
-adicionarInscrito(
-linha,
-0,
-categoria
-);
-
-
-/* -----------------------------------------------
-SEGUNDO BLOCO
------------------------------------------------- */
-
-
-adicionarInscrito(
-linha,
-7,
-categoria
-);
-
-
-});
+    });
 
 }
 
 
 /* =====================================================
-ADICIONAR INSCRITO
+   ADICIONAR INSCRITO
 ===================================================== */
-
 
 function adicionarInscrito(
-linha,
-inicio,
-categoria
+    linha,
+    inicio,
+    categoria
 ) {
 
 
-const codigo =
-linha[inicio] || "";
+    const codigo =
+        linha[inicio] || "";
 
 
-const nome =
-linha[inicio + 1] || "";
+    const nome =
+        linha[inicio + 1] || "";
 
 
-const clube =
-linha[inicio + 2] || "";
+    const clube =
+        linha[inicio + 2] || "";
 
 
-const categoriaLinha =
-linha[inicio + 3] || "";
+    const categoriaLinha =
+        linha[inicio + 3] || "";
 
 
-const idade =
-linha[inicio + 4] || "";
+    const idade =
+        linha[inicio + 4] || "";
 
 
-const confirmacao =
-linha[inicio + 5] || "";
+    const confirmacao =
+        linha[inicio + 5] || "";
 
 
-const torneios =
-linha[inicio + 6] || "";
+    const torneios =
+        linha[inicio + 6] || "";
 
 
-/* -----------------------------------------------
-SEM NOME = IGNORA
------------------------------------------------- */
+    /* ================================================
+       SEM NOME = IGNORA
+    ================================================= */
+
+    if (
+        !String(nome).trim()
+    ) {
+
+        return;
+
+    }
 
 
-if (
-!String(nome).trim()
-) {
+    /* ================================================
+       IGNORA CABEÇALHO
+    ================================================= */
 
-return;
+    if (
+        ehCabecalho(nome)
+    ) {
 
-}
+        return;
 
-
-/* -----------------------------------------------
-IGNORA CABEÇALHO
------------------------------------------------- */
-
-
-if (
-ehCabecalho(nome)
-) {
-
-return;
-
-}
+    }
 
 
-/* -----------------------------------------------
-PROCURA NA LISTA AABB
------------------------------------------------- */
+    /* ================================================
+       PROCURAR NA LISTA AABB
+    ================================================= */
+
+    const encontrado =
+        todosAtletas.find(
+            atleta =>
+                normalizar(
+                    atleta.nome
+                ) ===
+                normalizar(
+                    nome
+                )
+        );
 
 
-const encontrado =
-todosAtletas.find(
-atleta =>
-normalizar(
-atleta.nome
-) ===
-normalizar(
-nome
-)
-);
+    /* ================================================
+       CRIAR ATLETA
+    ================================================= */
+
+    const atleta = {
+
+        codigo:
+            codigo ||
+            (
+                encontrado
+                ? encontrado.codigo
+                : ""
+            ),
 
 
-/* -----------------------------------------------
-CRIA ATLETA
------------------------------------------------- */
+        nome:
+            nome,
 
 
-const atleta = {
-
-codigo:
-codigo ||
-(encontrado
-? encontrado.codigo
-: ""),
-
-nome:
-nome,
-
-clube:
-clube,
-
-categoria:
-categoriaLinha ||
-categoria,
-
-idade:
-idade,
-
-confirmacao:
-confirmacao,
-
-torneios:
-torneios ||
-(encontrado
-? encontrado.torneios
-: "")
-
-};
+        clube:
+            clube,
 
 
-/* -----------------------------------------------
-EVITAR DUPLICADOS
------------------------------------------------- */
+        categoria:
+            categoriaLinha ||
+            (
+                encontrado
+                ? encontrado.categoria
+                : categoria
+            ),
 
 
-const jaExiste =
-inscritos.some(
-item =>
-normalizar(
-item.nome
-) ===
-normalizar(
-atleta.nome
-)
-);
+        idade:
+            idade,
 
 
-if (!jaExiste) {
-
-inscritos.push(atleta);
-
-}
+        confirmacao:
+            confirmacao,
 
 
-/* -----------------------------------------------
-GRUPO
------------------------------------------------- */
+        torneios:
+            torneios ||
+            (
+                encontrado
+                ? encontrado.torneios
+                : ""
+            )
+
+    };
 
 
-if (
-!grupos[categoria]
-) {
+    /* ================================================
+       EVITAR DUPLICADOS
+    ================================================= */
 
-grupos[categoria] = [];
-
-}
-
-
-const existeNoGrupo =
-grupos[categoria].some(
-item =>
-normalizar(
-item.nome
-) ===
-normalizar(
-atleta.nome
-)
-);
+    const jaExiste =
+        inscritos.some(
+            item =>
+                normalizar(
+                    item.nome
+                ) ===
+                normalizar(
+                    atleta.nome
+                )
+        );
 
 
-if (!existeNoGrupo) {
+    if (!jaExiste) {
 
-grupos[categoria].push(atleta);
+        inscritos.push(
+            atleta
+        );
 
-}
+    }
+
+
+    /* ================================================
+       ADICIONAR AO GRUPO
+    ================================================= */
+
+    if (
+        !grupos[categoria]
+    ) {
+
+        grupos[categoria] = [];
+
+    }
+
+
+    const existeNoGrupo =
+        grupos[categoria].some(
+            item =>
+                normalizar(
+                    item.nome
+                ) ===
+                normalizar(
+                    atleta.nome
+                )
+        );
+
+
+    if (!existeNoGrupo) {
+
+        grupos[categoria].push(
+            atleta
+        );
+
+    }
 
 }
 
 
 /* =====================================================
-CRIAR BOTÕES
+   CRIAR BOTÕES DAS CATEGORIAS
 ===================================================== */
-
 
 function criarBotoes() {
 
-
-const menu =
-document.getElementById(
-"menu"
-);
-
-
-/* TODOS OS ATLETAS */
-
-const botaoTodos =
-document.createElement(
-"button"
-);
-
-botaoTodos.className =
-"botao";
-
-botaoTodos.innerText =
-"📋 TODOS OS ATLETAS";
-
-botaoTodos.onclick =
-function() {
-
-selecionar(
-"TODOS",
-this
-);
-
-};
+    const menu =
+        document.getElementById(
+            "menu"
+        );
 
 
-/* 
-O botão já existe no HTML.
-Portanto não adicionamos outro.
-*/
+    Object.keys(grupos)
+        .forEach(
+            categoria => {
 
 
-/* CATEGORIAS */
-
-Object.keys(grupos)
-.forEach(
-categoria => {
-
-
-const botao =
-document.createElement(
-"button"
-);
+                const botao =
+                    document.createElement(
+                        "button"
+                    );
 
 
-botao.className =
-"botao";
+                botao.className =
+                    "botao";
 
 
-botao.innerText =
-categoria;
+                botao.innerText =
+                    categoria;
 
 
-botao.onclick =
-function() {
+                botao.onclick =
+                    function() {
 
-selecionar(
-categoria,
-this
-);
+                        selecionar(
+                            categoria,
+                            this
+                        );
 
-};
+                    };
 
 
-menu.appendChild(
-botao
-);
+                menu.appendChild(
+                    botao
+                );
 
-});
-
+            }
+        );
 
 }
 
 
 /* =====================================================
-SELECIONAR
+   SELECIONAR
 ===================================================== */
 
-
 function selecionar(
-categoria,
-botao
+    categoria,
+    botao
 ) {
 
 
-categoriaAtual =
-categoria;
+    categoriaAtual =
+        categoria;
 
 
-document
-.querySelectorAll(
-".botao"
-)
-.forEach(
-b =>
-b.classList.remove(
-"ativo"
-)
-);
+    document
+        .querySelectorAll(
+            ".botao"
+        )
+        .forEach(
+            b =>
+                b.classList.remove(
+                    "ativo"
+                )
+        );
 
 
-botao.classList.add(
-"ativo"
-);
+    botao.classList.add(
+        "ativo"
+    );
 
 
-document.getElementById(
-"busca"
-).value = "";
+    document.getElementById(
+        "busca"
+    ).value = "";
 
 
-mostrar();
+    mostrar();
 
 }
 
 
 /* =====================================================
-OBTER LISTA
+   OBTER LISTA
 ===================================================== */
-
 
 function obterLista() {
 
 
-if (
-categoriaAtual ===
-"INSCRITOS"
-) {
+    /* ================================================
+       INSCRITOS
+    ================================================= */
 
-return [
-...inscritos
-];
+    if (
+        categoriaAtual ===
+        "INSCRITOS"
+    ) {
 
-}
+        return [
+            ...inscritos
+        ];
 
-
-if (
-categoriaAtual ===
-"TODOS"
-) {
-
-return [
-...todosAtletas
-];
-
-}
+    }
 
 
-return [
-...(grupos[
-categoriaAtual
-] || [])
-];
+    /* ================================================
+       TODOS
+    ================================================= */
+
+    if (
+        categoriaAtual ===
+        "TODOS"
+    ) {
+
+        return [
+            ...todosAtletas
+        ];
+
+    }
+
+
+    /* ================================================
+       CATEGORIA
+    ================================================= */
+
+    return [
+        ...(grupos[
+            categoriaAtual
+        ] || [])
+    ];
 
 }
 
 
 /* =====================================================
-MOSTRAR
+   MOSTRAR
 ===================================================== */
-
 
 function mostrar() {
 
 
-let lista =
-obterLista();
+    let lista =
+        obterLista();
 
 
-/* PESQUISA */
+    /* ================================================
+       PESQUISA
+    ================================================= */
 
-const busca =
-normalizar(
-document.getElementById(
-"busca"
-).value
-);
+    const busca =
+        normalizar(
+            document.getElementById(
+                "busca"
+            ).value
+        );
 
 
-if (busca) {
+    if (busca) {
 
+        lista =
+            lista.filter(
+                atleta =>
 
-lista =
-lista.filter(
-atleta =>
+                    normalizar(
+                        atleta.nome
+                    ).includes(
+                        busca
+                    )
 
-normalizar(
-atleta.nome
-).includes(
-busca
-)
+            );
 
-);
+    }
 
-}
 
+    /* ================================================
+       ORDENAR
+    ================================================= */
 
-/* ORDENAR */
+    lista.sort(
+        (a, b) =>
 
-lista.sort(
-(a,b) =>
+            String(a.nome)
+                .localeCompare(
+                    String(b.nome),
+                    "pt-BR"
+                )
 
-String(a.nome)
-.localeCompare(
-String(b.nome),
-"pt-BR"
-)
-);
+    );
 
 
-/* CONTADOR */
+    /* ================================================
+       CONTADOR
+    ================================================= */
 
-document.getElementById(
-"contador"
-).innerText =
-lista.length;
+    document.getElementById(
+        "contador"
+    ).innerText =
+        lista.length;
 
 
-/* TÍTULO */
+    /* ================================================
+       TÍTULO
+    ================================================= */
 
-if (
-categoriaAtual ===
-"INSCRITOS"
-) {
+    if (
+        categoriaAtual ===
+        "INSCRITOS"
+    ) {
 
-document.getElementById(
-"titulo"
-).innerText =
-"Atletas inscritos";
+        document.getElementById(
+            "titulo"
+        ).innerText =
+            "Atletas inscritos";
 
-}
+    }
 
-else if (
-categoriaAtual ===
-"TODOS"
-) {
+    else if (
+        categoriaAtual ===
+        "TODOS"
+    ) {
 
-document.getElementById(
-"titulo"
-).innerText =
-"Todos os atletas";
+        document.getElementById(
+            "titulo"
+        ).innerText =
+            "Todos os atletas";
 
-}
+    }
 
-else {
+    else {
 
-document.getElementById(
-"titulo"
-).innerText =
-categoriaAtual;
+        document.getElementById(
+            "titulo"
+        ).innerText =
+            categoriaAtual;
 
-}
+    }
 
 
-/* SEM RESULTADO */
+    /* ================================================
+       NENHUM RESULTADO
+    ================================================= */
 
-if (!lista.length) {
+    if (!lista.length) {
 
+        document.getElementById(
+            "conteudo"
+        ).innerHTML = `
 
-document.getElementById(
-"conteudo"
-).innerHTML = `
+            <div class="vazio">
 
-<div class="vazio">
+                Nenhum atleta encontrado.
 
-Nenhum atleta encontrado.
+            </div>
 
-</div>
+        `;
 
-`;
+        return;
 
-return;
+    }
 
-}
 
+    /* ================================================
+       TABELA
+    ================================================= */
 
-/* TABELA */
+    let html = `
 
-let html = `
+        <div class="categoria">
 
-<div class="categoria">
+            <div class="categoria-titulo">
 
-<div class="categoria-titulo">
+                ${
+                    categoriaAtual === "INSCRITOS"
+                    ? "Atletas inscritos"
+                    : categoriaAtual === "TODOS"
+                    ? "Todos os atletas"
+                    : categoriaAtual
+                }
 
-${
-categoriaAtual === "INSCRITOS"
-? "Atletas inscritos"
-: categoriaAtual === "TODOS"
-? "Todos os atletas"
-: categoriaAtual
-}
+            </div>
 
-</div>
 
-<table>
+            <table>
 
-<thead>
+                <thead>
 
-<tr>
+                    <tr>
 
-<th>Código</th>
+                        <th>
+                            Código
+                        </th>
 
-<th>Nome</th>
+                        <th>
+                            Nome
+                        </th>
 
-<th>Clube</th>
+                        <th>
+                            Clube
+                        </th>
 
-<th>Categoria</th>
+                        <th>
+                            Categoria
+                        </th>
 
-<th>Idade</th>
+                        <th>
+                            Idade
+                        </th>
 
-<th>Torneios</th>
+                        <th>
+                            Torneios
+                        </th>
 
-${
-categoriaAtual !== "TODOS"
-? "<th>Status</th>"
-: ""
-}
+                        ${
+                            categoriaAtual !== "TODOS"
+                            ? "<th>Status</th>"
+                            : ""
+                        }
 
-</tr>
+                    </tr>
 
-</thead>
+                </thead>
 
-<tbody>
 
-`;
+                <tbody>
 
+    `;
 
-/* LINHAS */
 
-lista.forEach(
-atleta => {
+    /* ================================================
+       LINHAS
+    ================================================= */
 
+    lista.forEach(
+        atleta => {
 
-html += `
 
-<tr>
+            /*
+               SÓ MOSTRA CONFIRMADO
+               SE FOR EXATAMENTE "OK"
+            */
 
-<td>
-${atleta.codigo || ""}
-</td>
+            const confirmado =
+                normalizar(
+                    atleta.confirmacao
+                ) === "ok";
 
-<td>
-<strong>
-${atleta.nome || ""}
-</strong>
-</td>
 
-<td>
-${atleta.clube || "AABBM"}
-</td>
+            html += `
 
-<td>
-${atleta.categoria || ""}
-</td>
+                <tr>
 
-<td>
-${atleta.idade || ""}
-</td>
+                    <td>
+                        ${atleta.codigo || ""}
+                    </td>
 
-<td>
-${atleta.torneios || ""}
-</td>
 
-${
-categoriaAtual !== "TODOS"
-?
-`
-<td class="status">
-● Confirmado
-</td>
-`
-:
-""
-}
+                    <td>
 
-</tr>
+                        <strong>
+                            ${atleta.nome || ""}
+                        </strong>
 
-`;
+                    </td>
 
-});
 
+                    <td>
+                        ${atleta.clube || "AABBM"}
+                    </td>
 
-html += `
 
-</tbody>
+                    <td>
+                        ${atleta.categoria || ""}
+                    </td>
 
-</table>
 
-</div>
+                    <td>
+                        ${atleta.idade || ""}
+                    </td>
 
-`;
 
+                    <td>
+                        ${atleta.torneios || ""}
+                    </td>
 
-document.getElementById(
-"conteudo"
-).innerHTML =
-html;
+
+                    ${
+                        categoriaAtual !== "TODOS"
+
+                        ?
+
+                        `
+
+                        <td class="${
+                            confirmado
+                            ? "status"
+                            : ""
+                        }">
+
+                            ${
+                                confirmado
+                                ? "● Confirmado"
+                                : ""
+                            }
+
+                        </td>
+
+                        `
+
+                        :
+
+                        ""
+                    }
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    `;
+
+
+    document.getElementById(
+        "conteudo"
+    ).innerHTML =
+        html;
 
 }
 
 
 /* =====================================================
-PESQUISA
+   PESQUISA
 ===================================================== */
-
 
 document
-.getElementById(
-"busca"
-)
-.addEventListener(
-"input",
-mostrar
-);
+    .getElementById(
+        "busca"
+    )
+    .addEventListener(
+        "input",
+        mostrar
+    );
 
 
 /* =====================================================
-INICIAR
+   INICIAR
 ===================================================== */
-
 
 carregarExcel();
 
