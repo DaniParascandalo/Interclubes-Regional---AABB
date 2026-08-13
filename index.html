@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Interclubes Regional - AABBM</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        header p {
+            margin: 8px 0 0;
+            opacity: 0.8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .topo {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+
+        .topo h2 {
+            margin-top: 0;
+        }
+
+        .busca {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .status {
+            margin-top: 12px;
+            color: #555;
+        }
+
+        .categoria {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+
+        .categoria h2 {
+            background: #374151;
+            color: white;
+            margin: 0;
+            padding: 14px 18px;
+            font-size: 20px;
+        }
+
+        .tabela {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .tabela th {
+            background: #e5e7eb;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .tabela td {
+            padding: 12px;
+            border-top: 1px solid #eee;
+        }
+
+        .tabela tr:hover {
+            background: #f9fafb;
+        }
+
+        .erro {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 700px) {
+
+            header h1 {
+                font-size: 23px;
+            }
+
+            .tabela {
+                font-size: 13px;
+            }
+
+            .tabela th,
+            .tabela td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🏆 Interclubes Regional</h1>
+    <p>AABBM</p>
+</header>
+
+<div class="container">
+
+    <div class="topo">
+        <h2>Atletas</h2>
+
+        <input
+            type="text"
+            id="busca"
+            class="busca"
+            placeholder="🔎 Pesquisar atleta..."
+        >
+
+        <div id="status" class="status">
+            Carregando planilha...
+        </div>
+    </div>
+
+    <div id="conteudo"></div>
+
+</div>
+
+<script>
+
+const arquivoExcel = "IC26BT - REGIONAL - AABBM.xlsx";
+
+let atletas = [];
+
+async function carregarExcel() {
+
+    try {
+
+        const resposta = await fetch(arquivoExcel);
+
+        if (!resposta.ok) {
+            throw new Error("Não foi possível encontrar a planilha.");
+        }
+
+        const dados = await resposta.arrayBuffer();
+
+        const workbook = XLSX.read(dados, {
+            type: "array"
+        });
+
+        console.log("Abas encontradas:", workbook.SheetNames);
+
+        /*
+         * Vamos procurar primeiro a aba Lista AABB.
+         * Se ela não existir, usamos a primeira aba disponível.
+         */
+
+        let nomeAba = workbook.SheetNames.find(
+            aba => aba.toLowerCase().includes("lista aabb")
+        );
+
+        if (!nomeAba) {
+            nomeAba = workbook.SheetNames[0];
+        }
+
+        const planilha = workbook.Sheets[nomeAba];
+
+        atletas = XLSX.utils.sheet_to_json(planilha, {
+            defval: ""
+        });
+
+        document.getElementById("status").innerText =
+            `${atletas.length} registros encontrados na aba "${nomeAba}"`;
+
+        mostrarAtletas(atletas);
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        document.getElementById("status").innerText =
+            "Erro ao carregar a planilha.";
+
+        document.getElementById("conteudo").innerHTML = `
+            <div class="erro">
+                <strong>Não consegui ler a planilha.</strong><br><br>
+                Verifique se o arquivo está no mesmo repositório
+                e se o nome é exatamente:<br><br>
+                <strong>${arquivoExcel}</strong>
+            </div>
+        `;
+    }
+}
+
+
+function mostrarAtletas(lista) {
+
+    const conteudo = document.getElementById("conteudo");
+
+    if (!lista.length) {
+
+        conteudo.innerHTML = `
+            <div class="erro">
+                Nenhum atleta encontrado.
+            </div>
+        `;
+
+        return;
+    }
+
+    /*
+     * Descobre automaticamente algumas colunas
+     */
+
+    const primeiro = lista[0];
+
+    const encontrarColuna = (palavras) => {
+
+        return Object.keys(primeiro).find(coluna => {
+
+            const texto = coluna
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "");
+
+            return palavras.some(palavra =>
+                texto.includes(palavra)
+            );
+
+        });
+
+    };
+
+    const colunaNome = encontrarColuna(["nome"]) || "Nome";
+
+    const colunaCategoria =
+        encontrarColuna(["idade/cat", "categoria", "cat"]) || "";
+
+    const colunaIdade =
+        encontrarColuna(["idade"]) || "";
+
+    const colunaTorneios =
+        encontrarColuna(["torneios"]) || "";
+
+    const colunaCodigo =
+        encontrarColuna(["reg. cbt", "codigo", "código"]) || "";
+
+    /*
+     * Agrupa por categoria
+     */
+
+    const grupos = {};
+
+    lista.forEach(atleta => {
+
+        let categoria = colunaCategoria
+            ? atleta[colunaCategoria]
+            : "Atletas";
+
+        if (!categoria) {
+            categoria = "Atletas";
+        }
+
+        if (!grupos[categoria]) {
+            grupos[categoria] = [];
+        }
+
+        grupos[categoria].push(atleta);
+
+    });
+
+
+    let html = "";
+
+    Object.keys(grupos).forEach(categoria => {
+
+        html += `
+            <div class="categoria">
+
+                <h2>
+                    ${categoria}
+                </h2>
+
+                <table class="tabela">
+
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nome</th>
+                            <th>Idade</th>
+                            <th>Torneios</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+        `;
+
+        grupos[categoria].forEach(atleta => {
+
+            html += `
+                <tr>
+
+                    <td>
+                        ${colunaCodigo ? atleta[colunaCodigo] : ""}
+                    </td>
+
+                    <td>
+                        <strong>
+                            ${atleta[colunaNome] || ""}
+                        </strong>
+                    </td>
+
+                    <td>
+                        ${colunaIdade ? atleta[colunaIdade] : ""}
+                    </td>
+
+                    <td>
+                        ${colunaTorneios ? atleta[colunaTorneios] : ""}
+                    </td>
+
+                </tr>
+            `;
+
+        });
+
+        html += `
+                    </tbody>
+
+                </table>
+
+            </div>
+        `;
+
+    });
+
+    conteudo.innerHTML = html;
+
+}
+
+
+/*
+ * Pesquisa pelo nome
+ */
+
+document
+    .getElementById("busca")
+    .addEventListener("input", function() {
+
+        const termo = this.value
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
+        const filtrados = atletas.filter(atleta => {
+
+            return Object.values(atleta)
+                .join(" ")
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .includes(termo);
+
+        });
+
+        mostrarAtletas(filtrados);
+
+    });
+
+
+carregarExcel();
+
+</script>
+
+</body>
+</html>
