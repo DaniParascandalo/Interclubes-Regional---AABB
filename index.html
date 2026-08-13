@@ -1,284 +1,210 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
 
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Interclubes Regional - AABBM</title>
-
-    <!-- Biblioteca para ler Excel -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-    <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f3f5f7;
-            color: #172033;
-        }
-
-        /* CABEÇALHO */
-
-        header {
-            background: #111827;
-            color: white;
-            padding: 35px 20px;
-            text-align: center;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 32px;
-        }
-
-        header p {
-            margin: 8px 0 0;
-            font-size: 18px;
-            opacity: 0.85;
-        }
-
-
-        /* CONTAINER */
-
-        .container {
-            max-width: 1250px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
-
-        /* MENU */
-
-        .menu {
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-        }
-
-        .botao {
-            border: 1px solid #d1d5db;
-            background: white;
-            color: #172033;
-
-            padding: 11px 16px;
-
-            border-radius: 8px;
-
-            font-weight: bold;
-
-            cursor: pointer;
-
-            transition: 0.2s;
-        }
-
-        .botao:hover {
-            background: #e5e7eb;
-        }
-
-        .botao.ativo {
-            background: #0f766e;
-            color: white;
-            border-color: #0f766e;
-        }
-
-
-        /* RESUMO */
-
-        .resumo {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-        }
-
-        .resumo h2 {
-            margin-top: 0;
-        }
-
-        .numero {
-            font-size: 30px;
-            font-weight: bold;
-            color: #0f766e;
-        }
-
-
-        /* PESQUISA */
-
-        .busca {
-            width: 100%;
-
-            padding: 14px;
-
-            border: 1px solid #d1d5db;
-
-            border-radius: 8px;
-
-            font-size: 16px;
-
-            margin-top: 15px;
-        }
-
-
-        /* CATEGORIA */
-
-        .categoria {
-            background: white;
-
-            border-radius: 12px;
-
-            overflow: hidden;
-
-            margin-bottom: 20px;
-
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-        }
-
-        .categoria-titulo {
-            background: #374151;
-
-            color: white;
-
-            padding: 15px 18px;
-
-            font-size: 20px;
-
-            font-weight: bold;
-        }
-
-
-        /* TABELA */
-
-        table {
-            width: 100%;
-
-            border-collapse: collapse;
-        }
-
-        th {
-            background: #e5e7eb;
-
-            padding: 12px;
-
-            text-align: left;
-
-            font-size: 14px;
-        }
-
-        td {
-            padding: 12px;
-
-            border-top: 1px solid #eeeeee;
-        }
-
-        tr:hover {
-            background: #f9fafb;
-        }
-
-
-        /* CONFIRMADO */
-
-        .confirmado {
-            color: #047857;
-
-            font-weight: bold;
-        }
-
-        .confirmado::before {
-            content: "●";
-
-            margin-right: 6px;
-        }
-
-
-        /* CARREGANDO */
-
-        .carregando {
-            text-align: center;
-
-            padding: 40px;
-
-            background: white;
-
-            border-radius: 12px;
-        }
-
-
-        /* ERRO */
-
-        .erro {
-            background: #fee2e2;
-
-            color: #991b1b;
-
-            padding: 20px;
-
-            border-radius: 10px;
-        }
-
-
-        /* CELULAR */
-
-        @media (max-width: 700px) {
-
-            header h1 {
-                font-size: 24px;
-            }
-
-            .container {
-                padding: 0 10px;
-            }
-
-            .menu {
-                gap: 6px;
-            }
-
-            .botao {
-                font-size: 13px;
-
-                padding: 9px 11px;
-            }
-
-            table {
-                font-size: 13px;
-            }
-
-            th,
-            td {
-                padding: 8px;
-            }
-
-        }
-
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Interclubes Regional - AABBM</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f3f5f7;
+    color: #172033;
+}
+
+header {
+    background: #111827;
+    color: white;
+    padding: 35px 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+header p {
+    margin: 8px 0 0;
+    font-size: 18px;
+    opacity: .85;
+}
+
+.container {
+    max-width: 1250px;
+    margin: 28px auto;
+    padding: 0 18px;
+}
+
+.menu {
+    background: white;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+}
+
+.botao {
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #172033;
+    padding: 11px 16px;
+    border-radius: 9px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.botao:hover {
+    background: #eef2f7;
+}
+
+.botao.ativo {
+    background: #0f766e;
+    color: white;
+    border-color: #0f766e;
+}
+
+.resumo {
+    background: white;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+}
+
+.resumo h2 {
+    margin: 0 0 8px;
+}
+
+.contador {
+    font-size: 30px;
+    font-weight: bold;
+    color: #0f766e;
+}
+
+.busca {
+    width: 100%;
+    padding: 14px;
+    margin-top: 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+    font-size: 16px;
+}
+
+.categoria {
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+}
+
+.categoria-titulo {
+    background: #374151;
+    color: white;
+    padding: 15px 18px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background: #e5e7eb;
+    padding: 12px;
+    text-align: left;
+    font-size: 14px;
+}
+
+td {
+    padding: 12px;
+    border-top: 1px solid #eeeeee;
+}
+
+tr:hover {
+    background: #f9fafb;
+}
+
+.status {
+    color: #047857;
+    font-weight: bold;
+}
+
+.vazio {
+    background: white;
+    border-radius: 14px;
+    padding: 45px;
+    text-align: center;
+    color: #555;
+}
+
+.carregando {
+    background: white;
+    border-radius: 14px;
+    padding: 45px;
+    text-align: center;
+}
+
+.erro {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+@media(max-width:700px) {
+
+    header h1 {
+        font-size: 24px;
+    }
+
+    .container {
+        padding: 0 10px;
+    }
+
+    .botao {
+        font-size: 13px;
+        padding: 9px 11px;
+    }
+
+    table {
+        font-size: 13px;
+    }
+
+    th,
+    td {
+        padding: 8px;
+    }
+
+}
+
+</style>
 
 </head>
 
-
 <body>
-
 
 <header>
 
-    <h1>🏆 Interclubes Regional</h1>
+<h1>🏆 Interclubes Regional</h1>
 
-    <p>AABBM</p>
+<p>AABBM</p>
 
 </header>
 
@@ -286,54 +212,50 @@
 <div class="container">
 
 
-    <!-- MENU -->
+<div class="menu" id="menu">
 
-    <div class="menu" id="menu">
+<button
+class="botao ativo"
+onclick="selecionar('INSCRITOS', this)">
+👥 INSCRITOS
+</button>
 
-        <button
-            class="botao ativo"
-            onclick="selecionarCategoria('INSCRITOS', this)"
-        >
-            👥 INSCRITOS
-        </button>
+<button
+class="botao"
+onclick="selecionar('TODOS', this)">
+📋 TODOS OS ATLETAS
+</button>
 
-    </div>
-
-
-    <!-- RESUMO -->
-
-    <div class="resumo">
-
-        <h2 id="tituloResumo">
-            Atletas inscritos
-        </h2>
-
-        <div
-            class="numero"
-            id="contador"
-        >
-            Carregando...
-        </div>
-
-        <input
-            type="text"
-            id="busca"
-            class="busca"
-            placeholder="🔎 Pesquisar atleta..."
-        >
-
-    </div>
+</div>
 
 
-    <!-- CONTEÚDO -->
+<div class="resumo">
 
-    <div id="conteudo">
+<h2 id="titulo">
+Atletas inscritos
+</h2>
 
-        <div class="carregando">
-            Carregando atletas...
-        </div>
+<div
+class="contador"
+id="contador">
+0
+</div>
 
-    </div>
+<input
+id="busca"
+class="busca"
+placeholder="🔎 Pesquisar atleta...">
+
+</div>
+
+
+<div id="conteudo">
+
+<div class="carregando">
+Carregando planilha...
+</div>
+
+</div>
 
 
 </div>
@@ -342,730 +264,715 @@
 <script>
 
 
-/* =========================================================
-   CONFIGURAÇÃO
-========================================================= */
+const arquivoExcel =
+"IC26BT - REGIONAL - AABBM.xlsx";
 
 
-const arquivoExcel = "IC26BT - REGIONAL - AABBM.xlsx";
+let todosAtletas = [];
+
+let inscritos = [];
+
+let grupos = {};
+
+let categoriaAtual = "INSCRITOS";
 
 
-let atletas = [];
+/* ==========================================
+NORMALIZA TEXTO
+========================================== */
 
-let categorias = {};
+function normalizar(texto) {
 
-let categoriaSelecionada = "INSCRITOS";
-
-
-/* =========================================================
-   FUNÇÕES AUXILIARES
-========================================================= */
-
-
-function normalizar(valor) {
-
-    return String(valor || "")
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
+return String(texto || "")
+.trim()
+.toLowerCase()
+.normalize("NFD")
+.replace(/[\u0300-\u036f]/g,"");
 
 }
 
 
-/* =========================================================
-   LER EXCEL
-========================================================= */
-
+/* ==========================================
+LÊ EXCEL
+========================================== */
 
 async function carregarExcel() {
 
-    try {
+try {
 
-        const resposta = await fetch(arquivoExcel);
+const resposta =
+await fetch(arquivoExcel + "?v=" + Date.now());
 
-        if (!resposta.ok) {
+if (!resposta.ok) {
 
-            throw new Error(
-                "Não foi possível encontrar o arquivo Excel."
-            );
+throw new Error(
+"Excel não encontrado"
+);
 
-        }
+}
 
+const dados =
+await resposta.arrayBuffer();
 
-        const dados = await resposta.arrayBuffer();
-
-
-        const workbook = XLSX.read(
-            dados,
-            {
-                type: "array"
-            }
-        );
-
-
-        console.log(
-            "Abas encontradas:",
-            workbook.SheetNames
-        );
+const workbook =
+XLSX.read(
+dados,
+{type:"array"}
+);
 
 
-        /*
-         * Vamos ler somente as abas que representam
-         * as categorias do campeonato.
-         */
-
-        const abas = ["Geral", "Subs"];
+console.log(
+"Abas:",
+workbook.SheetNames
+);
 
 
-        abas.forEach(nomeAba => {
+/* ------------------------------------------
+LISTA AABB
+------------------------------------------ */
 
-            if (workbook.SheetNames.includes(nomeAba)) {
+if (
+workbook.SheetNames.includes(
+"Lista AABB"
+)
+) {
 
-                lerAba(
-                    workbook.Sheets[nomeAba]
-                );
+const sheet =
+workbook.Sheets["Lista AABB"];
 
-            }
+const dadosLista =
+XLSX.utils.sheet_to_json(
+sheet,
+{defval:""}
+);
 
-        });
+todosAtletas =
+dadosLista.map(atleta => ({
 
+codigo:
+atleta["Reg. CBT"] || "",
 
-        criarBotoes();
+nome:
+atleta["Nome"] || "",
 
+categoria:
+atleta["Categoria"] || "",
 
-        mostrarAtletas();
+torneios:
+atleta["Torneios Jogados (01/2026)"] || "",
 
+sexo:
+atleta["Sexo"] || ""
 
-    } catch (erro) {
-
-        console.error(erro);
-
-
-        document.getElementById("conteudo").innerHTML = `
-
-            <div class="erro">
-
-                <strong>
-                    Não consegui carregar a planilha.
-                </strong>
-
-                <br><br>
-
-                Verifique se o arquivo está no GitHub com o nome:
-
-                <br><br>
-
-                <strong>
-                    ${arquivoExcel}
-                </strong>
-
-            </div>
-
-        `;
-
-    }
+}));
 
 }
 
 
-/* =========================================================
-   LER CADA ABA
-========================================================= */
+/* ------------------------------------------
+GERAL
+------------------------------------------ */
 
+if (
+workbook.SheetNames.includes("Geral")
+) {
 
-function lerAba(planilha) {
-
-
-    const dados =
-        XLSX.utils.sheet_to_json(
-            planilha,
-            {
-                header: 1,
-                defval: ""
-            }
-        );
-
-
-    let categoriaAtual = null;
-
-
-    dados.forEach((linha, indice) => {
-
-
-        /*
-         * Procuramos linhas que começam com
-         * "Categoria"
-         */
-
-        const primeiraColuna =
-            String(linha[0] || "").trim();
-
-
-        if (
-            primeiraColuna.startsWith("Categoria ")
-            &&
-            primeiraColuna !== "Categoria Profissional"
-        ) {
-
-            categoriaAtual =
-                primeiraColuna;
-
-            if (!categorias[categoriaAtual]) {
-
-                categorias[categoriaAtual] = [];
-
-            }
-
-            return;
-
-        }
-
-
-        /*
-         * Ignorar linhas antes da primeira categoria
-         */
-
-        if (!categoriaAtual) {
-
-            return;
-
-        }
-
-
-        /*
-         * Ignorar cabeçalho
-         */
-
-        if (
-            normalizar(linha[0]) === "codigo"
-        ) {
-
-            return;
-
-        }
-
-
-        /*
-         * A planilha possui dois blocos:
-         *
-         * A:G = primeiro lado
-         * H:N = segundo lado
-         *
-         * Vamos ler os dois.
-         */
-
-
-        adicionarAtleta(
-            linha,
-            0,
-            categoriaAtual
-        );
-
-
-        adicionarAtleta(
-            linha,
-            7,
-            categoriaAtual
-        );
-
-
-    });
+lerCategorias(
+workbook.Sheets["Geral"]
+);
 
 }
 
 
-/* =========================================================
-   ADICIONAR ATLETA
-========================================================= */
+/* ------------------------------------------
+SUBS
+------------------------------------------ */
+
+if (
+workbook.SheetNames.includes("Subs")
+) {
+
+lerCategorias(
+workbook.Sheets["Subs"]
+);
+
+}
 
 
-function adicionarAtleta(
-    linha,
-    inicio,
-    categoria
+/* ------------------------------------------
+CRIA BOTÕES
+------------------------------------------ */
+
+criarBotoes();
+
+
+/* ------------------------------------------
+MOSTRA INSCRITOS
+------------------------------------------ */
+
+mostrar();
+
+
+} catch(erro) {
+
+console.error(erro);
+
+document.getElementById(
+"conteudo"
+).innerHTML = `
+
+<div class="erro">
+
+<strong>
+Erro ao carregar a planilha.
+</strong>
+
+<br><br>
+
+Verifique se o arquivo está no GitHub com o nome:
+
+<br><br>
+
+<strong>
+${arquivoExcel}
+</strong>
+
+</div>
+
+`;
+
+}
+
+}
+
+
+/* ==========================================
+LÊ GERAL / SUBS
+========================================== */
+
+function lerCategorias(sheet) {
+
+const linhas =
+XLSX.utils.sheet_to_json(
+sheet,
+{
+header:1,
+defval:""
+}
+);
+
+let categoria = "";
+
+
+linhas.forEach(linha => {
+
+
+/* ------------------------------------------
+ENCONTRA TÍTULO DA CATEGORIA
+------------------------------------------ */
+
+const primeiro =
+String(linha[0] || "")
+.trim();
+
+
+if (
+primeiro.startsWith("Categoria ")
+) {
+
+categoria = primeiro;
+
+if (!grupos[categoria]) {
+
+grupos[categoria] = [];
+
+}
+
+return;
+
+}
+
+
+/* ------------------------------------------
+IGNORA LINHAS SEM NOME
+------------------------------------------ */
+
+if (!categoria) {
+return;
+}
+
+
+/* ------------------------------------------
+PRIMEIRO BLOCO
+A:G
+------------------------------------------ */
+
+adicionarInscrito(
+linha,
+0,
+categoria
+);
+
+
+/* ------------------------------------------
+SEGUNDO BLOCO
+H:N
+------------------------------------------ */
+
+adicionarInscrito(
+linha,
+7,
+categoria
+);
+
+});
+
+}
+
+
+/* ==========================================
+ADICIONA INSCRITO
+========================================== */
+
+function adicionarInscrito(
+linha,
+inicio,
+categoria
 ) {
 
 
-    const codigo =
-        linha[inicio] || "";
+const codigo =
+linha[inicio] || "";
+
+const nome =
+linha[inicio + 1] || "";
+
+const clube =
+linha[inicio + 2] || "";
+
+const categoriaLinha =
+linha[inicio + 3] || "";
+
+const idade =
+linha[inicio + 4] || "";
+
+const confirmacao =
+linha[inicio + 5] || "";
+
+const torneios =
+linha[inicio + 6] || "";
 
 
-    const nome =
-        linha[inicio + 1] || "";
+/*
+Se não tem nome, ignora.
+*/
 
+if (
+!String(nome).trim()
+) {
 
-    const clube =
-        linha[inicio + 2] || "";
-
-
-    const categoriaPlanilha =
-        linha[inicio + 3] || "";
-
-
-    const idade =
-        linha[inicio + 4] || "";
-
-
-    const confirmacao =
-        linha[inicio + 5] || "";
-
-
-    const torneios =
-        linha[inicio + 6] || "";
-
-
-    /*
-     * Se não existe nome, não é atleta.
-     */
-
-    if (!String(nome).trim()) {
-
-        return;
-
-    }
-
-
-    /*
-     * Só consideramos inscrito quem possui
-     * alguma informação na coluna Confirmação.
-     */
-
-    const inscrito =
-        String(confirmacao).trim() !== "";
-
-
-    categorias[categoria].push({
-
-        codigo: codigo,
-
-        nome: nome,
-
-        clube: clube,
-
-        categoria: categoriaPlanilha || categoria,
-
-        idade: idade,
-
-        confirmacao: confirmacao,
-
-        torneios: torneios,
-
-        inscrito: inscrito
-
-    });
+return;
 
 }
 
 
-/* =========================================================
-   CRIAR BOTÕES DAS CATEGORIAS
-========================================================= */
+/*
+Busca o atleta na Lista AABB
+para completar dados.
+*/
 
+const encontrado =
+todosAtletas.find(
+atleta =>
+normalizar(atleta.nome) ===
+normalizar(nome)
+);
+
+
+const atleta = {
+
+codigo:
+codigo ||
+(encontrado
+? encontrado.codigo
+: ""),
+
+nome:
+nome,
+
+clube:
+clube,
+
+categoria:
+categoriaLinha ||
+categoria,
+
+idade:
+idade,
+
+confirmacao:
+confirmacao,
+
+torneios:
+torneios ||
+(encontrado
+? encontrado.torneios
+: "")
+
+};
+
+
+grupos[categoria].push(atleta);
+
+inscritos.push(atleta);
+
+}
+
+
+/* ==========================================
+CRIA BOTÕES
+========================================== */
 
 function criarBotoes() {
 
-
-    const menu =
-        document.getElementById("menu");
-
-
-    Object.keys(categorias).forEach(categoria => {
+const menu =
+document.getElementById("menu");
 
 
-        const botao =
-            document.createElement("button");
+Object.keys(grupos).forEach(
+categoria => {
 
 
-        botao.className =
-            "botao";
+const botao =
+document.createElement("button");
+
+botao.className =
+"botao";
+
+botao.innerText =
+categoria;
+
+botao.onclick =
+function() {
+
+selecionar(
+categoria,
+this
+);
+
+};
 
 
-        botao.innerText =
-            categoria;
+menu.appendChild(botao);
 
-
-        botao.onclick = function() {
-
-            selecionarCategoria(
-                categoria,
-                this
-            );
-
-        };
-
-
-        menu.appendChild(botao);
-
-    });
+});
 
 }
 
 
-/* =========================================================
-   SELECIONAR CATEGORIA
-========================================================= */
+/* ==========================================
+SELECIONAR
+========================================== */
 
-
-function selecionarCategoria(
-    categoria,
-    botao
+function selecionar(
+categoria,
+botao
 ) {
 
-
-    categoriaSelecionada =
-        categoria;
-
-
-    document
-        .querySelectorAll(".botao")
-        .forEach(b => {
-
-            b.classList.remove("ativo");
-
-        });
+categoriaAtual =
+categoria;
 
 
-    botao.classList.add("ativo");
+document
+.querySelectorAll(".botao")
+.forEach(
+b =>
+b.classList.remove("ativo")
+);
 
 
-    document.getElementById("busca").value = "";
+botao.classList.add("ativo");
 
 
-    mostrarAtletas();
+document.getElementById(
+"busca"
+).value = "";
+
+
+mostrar();
 
 }
 
 
-/* =========================================================
-   PEGAR ATLETAS
-========================================================= */
-
+/* ==========================================
+PEGAR LISTA
+========================================== */
 
 function obterLista() {
 
 
-    let lista = [];
+if (
+categoriaAtual === "INSCRITOS"
+) {
 
-
-    if (
-        categoriaSelecionada ===
-        "INSCRITOS"
-    ) {
-
-
-        Object.values(categorias)
-            .forEach(grupo => {
-
-
-                grupo.forEach(atleta => {
-
-
-                    if (atleta.inscrito) {
-
-                        lista.push(atleta);
-
-                    }
-
-                });
-
-            });
-
-
-    } else {
-
-
-        lista =
-            categorias[categoriaSelecionada] || [];
-
-
-        /*
-         * Nas categorias também mostramos
-         * somente quem está inscrito.
-         */
-
-        lista =
-            lista.filter(
-                atleta => atleta.inscrito
-            );
-
-    }
-
-
-    return lista;
+return [...inscritos];
 
 }
 
 
-/* =========================================================
-   MOSTRAR ATLETAS
-========================================================= */
-
-
-function mostrarAtletas() {
-
-
-    const busca =
-        normalizar(
-            document.getElementById("busca").value
-        );
-
-
-    let lista =
-        obterLista();
-
-
-    /*
-     * Pesquisa
-     */
-
-    if (busca) {
-
-        lista =
-            lista.filter(atleta =>
-
-                normalizar(
-                    atleta.nome
-                ).includes(busca)
-
-            );
-
-    }
-
-
-    /*
-     * Ordenar por nome
-     */
-
-    lista.sort(
-        (a, b) =>
-            String(a.nome)
-                .localeCompare(
-                    String(b.nome),
-                    "pt-BR"
-                )
-    );
-
-
-    /*
-     * Contador
-     */
-
-    document.getElementById(
-        "contador"
-    ).innerText =
-        lista.length;
-
-
-    /*
-     * Título
-     */
-
-    document.getElementById(
-        "tituloResumo"
-    ).innerText =
-
-        categoriaSelecionada === "INSCRITOS"
-
-            ? "Atletas inscritos"
-
-            : categoriaSelecionada;
-
-
-    /*
-     * Se não encontrou ninguém
-     */
-
-    if (!lista.length) {
-
-
-        document.getElementById(
-            "conteudo"
-        ).innerHTML = `
-
-            <div class="carregando">
-
-                Nenhum atleta inscrito encontrado.
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    /*
-     * Agrupar por categoria
-     */
-
-    const grupos = {};
-
-
-    lista.forEach(atleta => {
-
-
-        const categoria =
-            atleta.categoria ||
-            categoriaSelecionada;
-
-
-        if (!grupos[categoria]) {
-
-            grupos[categoria] = [];
-
-        }
-
-
-        grupos[categoria].push(atleta);
-
-    });
-
-
-    let html = "";
-
-
-    Object.keys(grupos)
-        .sort()
-        .forEach(categoria => {
-
-
-            html += `
-
-                <div class="categoria">
-
-                    <div class="categoria-titulo">
-
-                        ${categoria}
-
-                    </div>
-
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Código
-                                </th>
-
-                                <th>
-                                    Nome
-                                </th>
-
-                                <th>
-                                    Clube
-                                </th>
-
-                                <th>
-                                    Idade
-                                </th>
-
-                                <th>
-                                    Torneios
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-            `;
-
-
-            grupos[categoria]
-                .forEach(atleta => {
-
-
-                    html += `
-
-                        <tr>
-
-                            <td>
-                                ${atleta.codigo}
-                            </td>
-
-                            <td>
-                                <strong>
-                                    ${atleta.nome}
-                                </strong>
-                            </td>
-
-                            <td>
-                                ${atleta.clube}
-                            </td>
-
-                            <td>
-                                ${atleta.idade}
-                            </td>
-
-                            <td>
-                                ${atleta.torneios}
-                            </td>
-
-                            <td class="confirmado">
-                                Confirmado
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                });
-
-
-            html += `
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            `;
-
-        });
-
-
-    document.getElementById(
-        "conteudo"
-    ).innerHTML = html;
+if (
+categoriaAtual === "TODOS"
+) {
+
+return [...todosAtletas];
 
 }
 
 
-/* =========================================================
-   PESQUISA
-========================================================= */
+return [
+...(grupos[categoriaAtual] || [])
+];
 
+}
+
+
+/* ==========================================
+MOSTRAR
+========================================== */
+
+function mostrar() {
+
+
+let lista =
+obterLista();
+
+
+const busca =
+normalizar(
+document.getElementById(
+"busca"
+).value
+);
+
+
+if (busca) {
+
+lista =
+lista.filter(
+atleta =>
+normalizar(
+atleta.nome
+).includes(busca)
+);
+
+}
+
+
+/*
+Ordena alfabeticamente.
+*/
+
+lista.sort(
+(a,b) =>
+String(a.nome)
+.localeCompare(
+String(b.nome),
+"pt-BR"
+)
+);
+
+
+document.getElementById(
+"contador"
+).innerText =
+lista.length;
+
+
+if (
+categoriaAtual === "INSCRITOS"
+) {
+
+document.getElementById(
+"titulo"
+).innerText =
+"Atletas inscritos";
+
+} else if (
+categoriaAtual === "TODOS"
+) {
+
+document.getElementById(
+"titulo"
+).innerText =
+"Todos os atletas";
+
+} else {
+
+document.getElementById(
+"titulo"
+).innerText =
+categoriaAtual;
+
+}
+
+
+/*
+Nenhum resultado.
+*/
+
+if (!lista.length) {
+
+document.getElementById(
+"conteudo"
+).innerHTML = `
+
+<div class="vazio">
+
+Nenhum atleta encontrado.
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+/*
+Tabela.
+*/
+
+let html = `
+
+<div class="categoria">
+
+<div class="categoria-titulo">
+
+${categoriaAtual === "TODOS"
+? "Todos os atletas"
+: categoriaAtual}
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Código</th>
+
+<th>Nome</th>
+
+<th>Clube</th>
+
+<th>Categoria</th>
+
+<th>Idade</th>
+
+<th>Torneios</th>
+
+${categoriaAtual !== "TODOS"
+? "<th>Status</th>"
+: ""}
+
+</tr>
+
+</thead>
+
+<tbody>
+
+`;
+
+
+lista.forEach(
+atleta => {
+
+html += `
+
+<tr>
+
+<td>
+${atleta.codigo || ""}
+</td>
+
+<td>
+<strong>
+${atleta.nome || ""}
+</strong>
+</td>
+
+<td>
+${atleta.clube || "AABBM"}
+</td>
+
+<td>
+${atleta.categoria || ""}
+</td>
+
+<td>
+${atleta.idade || ""}
+</td>
+
+<td>
+${atleta.torneios || ""}
+</td>
+
+${categoriaAtual !== "TODOS"
+? `
+<td class="status">
+● Confirmado
+</td>
+`
+: ""}
+
+</tr>
+
+`;
+
+});
+
+
+html += `
+
+</tbody>
+
+</table>
+
+</div>
+
+`;
+
+
+document.getElementById(
+"conteudo"
+).innerHTML =
+html;
+
+}
+
+
+/* ==========================================
+PESQUISA
+========================================== */
 
 document
-    .getElementById("busca")
-    .addEventListener(
-        "input",
-        mostrarAtletas
-    );
+.getElementById("busca")
+.addEventListener(
+"input",
+mostrar
+);
 
 
-/* =========================================================
-   INICIAR
-========================================================= */
-
+/* ==========================================
+INICIA
+========================================== */
 
 carregarExcel();
 
 
 </script>
 
-
 </body>
-
 </html>
