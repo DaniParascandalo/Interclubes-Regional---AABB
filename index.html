@@ -66,38 +66,88 @@ header p {
 .menu {
     background: white;
     border-radius: 14px;
-    padding: 16px;
+    padding: 20px;
     margin-bottom: 20px;
-
-    display: flex;
-    flex-wrap: wrap;
-    gap: 9px;
-
     box-shadow: 0 2px 10px rgba(0,0,0,.06);
 }
 
-.botao {
+
+/* BOTÃO TODOS */
+
+.botao-todos {
     border: 1px solid #d1d5db;
     background: white;
     color: #172033;
 
-    padding: 11px 16px;
+    padding: 12px 18px;
 
     border-radius: 9px;
 
     font-weight: bold;
 
     cursor: pointer;
+
+    font-size: 15px;
+
+    margin-bottom: 22px;
 }
 
-.botao:hover {
+.botao-todos:hover {
     background: #eef2f7;
 }
 
-.botao.ativo {
+.botao-todos.ativo {
     background: #0f766e;
     color: white;
     border-color: #0f766e;
+}
+
+
+/* =========================
+   CATEGORIA
+========================= */
+
+.label-categoria {
+    display: block;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    color: #4b5563;
+
+    margin-bottom: 8px;
+
+    text-transform: uppercase;
+}
+
+
+.select-categoria {
+    width: 100%;
+
+    max-width: 520px;
+
+    padding: 13px 15px;
+
+    border: 1px solid #9ca3af;
+
+    border-radius: 9px;
+
+    background: white;
+
+    color: #172033;
+
+    font-size: 16px;
+
+    cursor: pointer;
+}
+
+.select-categoria:focus {
+    outline: none;
+
+    border-color: #0f766e;
+
+    box-shadow: 0 0 0 2px rgba(15,118,110,.15);
 }
 
 
@@ -107,8 +157,11 @@ header p {
 
 .resumo {
     background: white;
+
     border-radius: 14px;
+
     padding: 22px;
+
     margin-bottom: 20px;
 
     box-shadow: 0 2px 10px rgba(0,0,0,.06);
@@ -116,12 +169,15 @@ header p {
 
 .resumo h2 {
     margin: 0 0 8px;
+
     font-size: 28px;
 }
 
 .contador {
     font-size: 30px;
+
     font-weight: bold;
+
     color: #0f766e;
 }
 
@@ -170,6 +226,7 @@ header p {
 
 table {
     width: 100%;
+
     border-collapse: collapse;
 }
 
@@ -200,6 +257,7 @@ tr:hover {
 
 .status {
     color: #047857;
+
     font-weight: bold;
 }
 
@@ -255,9 +313,8 @@ tr:hover {
         padding: 0 10px;
     }
 
-    .botao {
-        font-size: 13px;
-        padding: 9px 11px;
+    .select-categoria {
+        max-width: 100%;
     }
 
     table {
@@ -299,14 +356,36 @@ tr:hover {
      MENU
 ========================= -->
 
-<div class="menu" id="menu">
+<div class="menu">
 
     <button
-        class="botao"
-        onclick="selecionar('TODOS', this)"
+        id="botaoTodos"
+        class="botao-todos"
+        onclick="mostrarTodos()"
     >
         📋 TODOS OS ATLETAS
     </button>
+
+
+    <label
+        class="label-categoria"
+        for="selectCategoria"
+    >
+        CATEGORIA
+    </label>
+
+
+    <select
+        id="selectCategoria"
+        class="select-categoria"
+        onchange="selecionarCategoria()"
+    >
+
+        <option value="">
+            Selecione uma categoria
+        </option>
+
+    </select>
 
 </div>
 
@@ -556,10 +635,10 @@ async function carregarExcel() {
 
 
         /* =================================================
-           CRIAR BOTÕES
+           CRIAR LISTA DE CATEGORIAS
         ================================================= */
 
-        criarBotoes();
+        criarListaCategorias();
 
 
         /* =================================================
@@ -662,7 +741,7 @@ function lerCategorias(sheet) {
 
 
         /* ================================================
-           IGNORAR LINHAS ANTES DA CATEGORIA
+           IGNORAR ANTES DA CATEGORIA
         ================================================= */
 
         if (!categoria) {
@@ -738,7 +817,7 @@ function adicionarInscrito(
 
 
     /* ================================================
-       SEM NOME = IGNORA
+       SEM NOME
     ================================================= */
 
     if (
@@ -856,7 +935,7 @@ function adicionarInscrito(
 
 
     /* ================================================
-       ADICIONAR AO GRUPO
+       GRUPO
     ================================================= */
 
     if (
@@ -892,14 +971,14 @@ function adicionarInscrito(
 
 
 /* =====================================================
-   CRIAR BOTÕES DAS CATEGORIAS
+   CRIAR LISTA DE CATEGORIAS
 ===================================================== */
 
-function criarBotoes() {
+function criarListaCategorias() {
 
-    const menu =
+    const select =
         document.getElementById(
-            "menu"
+            "selectCategoria"
         );
 
 
@@ -907,34 +986,19 @@ function criarBotoes() {
         .forEach(
             categoria => {
 
-
-                const botao =
+                const option =
                     document.createElement(
-                        "button"
+                        "option"
                     );
 
-
-                botao.className =
-                    "botao";
-
-
-                botao.innerText =
+                option.value =
                     categoria;
 
+                option.textContent =
+                    categoria;
 
-                botao.onclick =
-                    function() {
-
-                        selecionar(
-                            categoria,
-                            this
-                        );
-
-                    };
-
-
-                menu.appendChild(
-                    botao
+                select.appendChild(
+                    option
                 );
 
             }
@@ -944,34 +1008,90 @@ function criarBotoes() {
 
 
 /* =====================================================
-   SELECIONAR
+   MOSTRAR TODOS OS ATLETAS
 ===================================================== */
 
-function selecionar(
-    categoria,
-    botao
-) {
-
+function mostrarTodos() {
 
     categoriaAtual =
-        categoria;
+        "TODOS";
 
 
     document
-        .querySelectorAll(
-            ".botao"
+        .getElementById(
+            "botaoTodos"
         )
-        .forEach(
-            b =>
-                b.classList.remove(
-                    "ativo"
-                )
+        .classList.add(
+            "ativo"
         );
 
 
-    botao.classList.add(
-        "ativo"
-    );
+    document.getElementById(
+        "selectCategoria"
+    ).value = "";
+
+
+    document.getElementById(
+        "busca"
+    ).value = "";
+
+
+    mostrar();
+
+}
+
+
+/* =====================================================
+   SELECIONAR CATEGORIA
+===================================================== */
+
+function selecionarCategoria() {
+
+    const select =
+        document.getElementById(
+            "selectCategoria"
+        );
+
+
+    const valor =
+        select.value;
+
+
+    if (!valor) {
+
+        categoriaAtual =
+            "INSCRITOS";
+
+        document
+            .getElementById(
+                "botaoTodos"
+            )
+            .classList.remove(
+                "ativo"
+            );
+
+        document.getElementById(
+            "busca"
+        ).value = "";
+
+        mostrar();
+
+        return;
+
+    }
+
+
+    categoriaAtual =
+        valor;
+
+
+    document
+        .getElementById(
+            "botaoTodos"
+        )
+        .classList.remove(
+            "ativo"
+        );
 
 
     document.getElementById(
@@ -1239,8 +1359,8 @@ function mostrar() {
 
 
             /*
-               SÓ MOSTRA CONFIRMADO
-               SE FOR EXATAMENTE "OK"
+              SÓ MOSTRA CONFIRMADO
+              SE FOR EXATAMENTE OK
             */
 
             const confirmado =
