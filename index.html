@@ -60,7 +60,7 @@ header p {
 
 
 /* =====================================================
-   MENU / FILTRO
+   FILTRO
 ===================================================== */
 
 .menu {
@@ -180,11 +180,11 @@ tr:hover {
 
 
 /* =====================================================
-   TORNEIOS
+   TORNEIOS VERMELHO
 ===================================================== */
 
 .torneios-alerta {
-    color: #ff0000 !important;
+    color: red !important;
     font-weight: bold;
 }
 
@@ -275,9 +275,7 @@ tr:hover {
         class="label-categoria"
         for="selectCategoria"
     >
-
         CATEGORIA
-
     </label>
 
 
@@ -288,9 +286,7 @@ tr:hover {
     >
 
         <option value="">
-
             Selecione uma categoria
-
         </option>
 
     </select>
@@ -305,9 +301,7 @@ tr:hover {
 <div class="resumo">
 
     <h2 id="titulo">
-
         Selecione uma categoria
-
     </h2>
 
 
@@ -315,9 +309,7 @@ tr:hover {
         class="contador"
         id="contador"
     >
-
         0
-
     </div>
 
 
@@ -338,9 +330,7 @@ tr:hover {
 <div id="conteudo">
 
     <div class="carregando">
-
         Carregando planilha...
-
     </div>
 
 </div>
@@ -372,6 +362,56 @@ let categoriaAtual = "";
 
 
 /* =====================================================
+   ORDEM DAS CATEGORIAS
+===================================================== */
+
+const ordemCategorias = [
+
+    "Profissional Feminino",
+    "Profissional Masculino",
+
+    "A Feminino",
+    "A Masculino",
+
+    "B Feminino",
+    "B Masculino",
+
+    "C Feminino",
+    "C Masculino",
+
+    "D Feminino",
+    "D Masculino",
+
+    "E Feminino",
+    "E Masculino",
+
+    "40+ Feminino",
+    "40+ Masculino",
+
+    "50+ Feminino",
+    "50+ Masculino",
+
+    "60+ Feminino",
+    "60+ Masculino",
+
+    "Categoria Sub 10 - Mista",
+
+    "Sub12 Feminino",
+    "Sub12 Masculino",
+
+    "Sub14 Feminino",
+    "Sub14 Masculino",
+
+    "Sub16 Feminino",
+    "Sub16 Masculino",
+
+    "Sub18 Feminino",
+    "Sub18 Masculino"
+
+];
+
+
+/* =====================================================
    NORMALIZAR TEXTO
 ===================================================== */
 
@@ -397,30 +437,15 @@ function escaparHtml(valor) {
 
     return String(valor ?? "")
 
-        .replace(
-            /&/g,
-            "&amp;"
-        )
+        .replace(/&/g, "&amp;")
 
-        .replace(
-            /</g,
-            "&lt;"
-        )
+        .replace(/</g, "&lt;")
 
-        .replace(
-            />/g,
-            "&gt;"
-        )
+        .replace(/>/g, "&gt;")
 
-        .replace(
-            /"/g,
-            "&quot;"
-        )
+        .replace(/"/g, "&quot;")
 
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+        .replace(/'/g, "&#039;");
 
 }
 
@@ -450,9 +475,7 @@ function numeroTorneios(valor) {
         );
 
 
-    if (
-        isNaN(numero)
-    ) {
+    if (isNaN(numero)) {
 
         return null;
 
@@ -495,23 +518,22 @@ function classeTorneios(valor) {
 
 
 /* =====================================================
-   VERIFICAR LINHA DE CABEÇALHO
+   VERIFICAR CABEÇALHO
 ===================================================== */
 
 function ehCabecalho(
     linha,
-    colunaInicial
+    coluna
 ) {
 
     const codigo =
         normalizar(
-            linha[colunaInicial]
+            linha[coluna]
         );
-
 
     const nome =
         normalizar(
-            linha[colunaInicial + 1]
+            linha[coluna + 1]
         );
 
 
@@ -524,110 +546,10 @@ function ehCabecalho(
 
 
 /* =====================================================
-   VERIFICAR SE É UMA LINHA DE CATEGORIA
+   IDENTIFICAR CATEGORIA
 ===================================================== */
 
-function ehCategoria(
-    valor
-) {
-
-    if (
-        valor === null ||
-        valor === undefined
-    ) {
-
-        return false;
-
-    }
-
-
-    const texto =
-        String(valor).trim();
-
-
-    if (
-        !texto
-    ) {
-
-        return false;
-
-    }
-
-
-    /*
-       Procuramos exatamente os títulos
-       dos blocos que existem na planilha.
-
-       Exemplos:
-
-       A Feminino
-       A Masculino
-       B Feminino
-       B Masculino
-       40+ Feminino
-       etc.
-    */
-
-    const nomesConhecidos = [
-
-        "Profissional Feminino",
-        "Profissional Masculino",
-
-        "A Feminino",
-        "A Masculino",
-
-        "B Feminino",
-        "B Masculino",
-
-        "C Feminino",
-        "C Masculino",
-
-        "D Feminino",
-        "D Masculino",
-
-        "E Feminino",
-        "E Masculino",
-
-        "40+ Feminino",
-        "40+ Masculino",
-
-        "50+ Feminino",
-        "50+ Masculino",
-
-        "60+ Feminino",
-        "60+ Masculino",
-
-        "Categoria Sub 10 - Mista",
-
-        "Sub12 Feminino",
-        "Sub12 Masculino",
-
-        "Sub14 Feminino",
-        "Sub14 Masculino",
-
-        "Sub16 Feminino",
-        "Sub16 Masculino",
-
-        "Sub18 Feminino",
-        "Sub18 Masculino"
-
-    ];
-
-
-    return nomesConhecidos.some(
-        nome =>
-            normalizar(nome) ===
-            normalizar(texto)
-    );
-
-}
-
-
-/* =====================================================
-   PEGAR NOME DA CATEGORIA
-===================================================== */
-
-function nomeCategoria(
+function identificarCategoria(
     valor
 ) {
 
@@ -645,56 +567,10 @@ function nomeCategoria(
         String(valor).trim();
 
 
-    const nomesConhecidos = [
-
-        "Profissional Feminino",
-        "Profissional Masculino",
-
-        "A Feminino",
-        "A Masculino",
-
-        "B Feminino",
-        "B Masculino",
-
-        "C Feminino",
-        "C Masculino",
-
-        "D Feminino",
-        "D Masculino",
-
-        "E Feminino",
-        "E Masculino",
-
-        "40+ Feminino",
-        "40+ Masculino",
-
-        "50+ Feminino",
-        "50+ Masculino",
-
-        "60+ Feminino",
-        "60+ Masculino",
-
-        "Categoria Sub 10 - Mista",
-
-        "Sub12 Feminino",
-        "Sub12 Masculino",
-
-        "Sub14 Feminino",
-        "Sub14 Masculino",
-
-        "Sub16 Feminino",
-        "Sub16 Masculino",
-
-        "Sub18 Feminino",
-        "Sub18 Masculino"
-
-    ];
-
-
     const encontrada =
-        nomesConhecidos.find(
-            nome =>
-                normalizar(nome) ===
+        ordemCategorias.find(
+            categoria =>
+                normalizar(categoria) ===
                 normalizar(texto)
         );
 
@@ -705,23 +581,56 @@ function nomeCategoria(
 
 
 /* =====================================================
+   ADICIONAR CATEGORIA
+===================================================== */
+
+function adicionarCategoria(
+    categoria
+) {
+
+    if (!categoria) {
+
+        return;
+
+    }
+
+
+    if (
+        !categorias.some(
+            item =>
+                normalizar(item) ===
+                normalizar(categoria)
+        )
+    ) {
+
+        categorias.push(
+            categoria
+        );
+
+    }
+
+}
+
+
+/* =====================================================
    ADICIONAR ATLETA
 ===================================================== */
 
 function adicionarAtleta(
     linha,
-    colunaInicial,
+    coluna,
     categoria
 ) {
 
     /*
-       Não adicionar cabeçalho
+       Se for cabeçalho,
+       não adiciona.
     */
 
     if (
         ehCabecalho(
             linha,
-            colunaInicial
+            coluna
         )
     ) {
 
@@ -731,35 +640,35 @@ function adicionarAtleta(
 
 
     const codigo =
-        linha[colunaInicial] || "";
+        linha[coluna] || "";
 
 
     const nome =
-        linha[colunaInicial + 1] || "";
+        linha[coluna + 1] || "";
 
 
     const clube =
-        linha[colunaInicial + 2] || "";
+        linha[coluna + 2] || "";
 
 
-    const categoriaDaPlanilha =
-        linha[colunaInicial + 3] || "";
+    const categoriaPlanilha =
+        linha[coluna + 3] || "";
 
 
     const idade =
-        linha[colunaInicial + 4] || "";
+        linha[coluna + 4] || "";
 
 
     const confirmacao =
-        linha[colunaInicial + 5] || "";
+        linha[coluna + 5] || "";
 
 
     const torneios =
-        linha[colunaInicial + 6] || "";
+        linha[coluna + 6] || "";
 
 
     /*
-       Não adicionar linha sem nome
+       Linha sem nome = não é atleta
     */
 
     if (
@@ -773,7 +682,7 @@ function adicionarAtleta(
 
 
     /*
-       Não adicionar texto de cabeçalho
+       Não adicionar cabeçalhos
     */
 
     const nomeNormalizado =
@@ -781,23 +690,23 @@ function adicionarAtleta(
 
 
     if (
-        nomeNormalizado === "nome" ||
-        nomeNormalizado === "codigo" ||
-        nomeNormalizado === "clube" ||
-        nomeNormalizado === "categoria" ||
-        nomeNormalizado === "idade" ||
-        nomeNormalizado === "confirmacao" ||
-        nomeNormalizado === "torneios"
+        [
+            "nome",
+            "codigo",
+            "clube",
+            "categoria",
+            "idade",
+            "confirmacao",
+            "torneios"
+        ].includes(
+            nomeNormalizado
+        )
     ) {
 
         return;
 
     }
 
-
-    /*
-       Adicionar atleta
-    */
 
     atletas.push({
 
@@ -814,7 +723,7 @@ function adicionarAtleta(
             categoria,
 
         categoriaPlanilha:
-            categoriaDaPlanilha,
+            categoriaPlanilha,
 
         idade:
             idade,
@@ -831,7 +740,7 @@ function adicionarAtleta(
 
 
 /* =====================================================
-   LER ABA GERAL
+   LER GERAL
 ===================================================== */
 
 function lerGeral(
@@ -849,31 +758,22 @@ function lerGeral(
 
 
     /*
-       A planilha possui:
+       IMPORTANTE:
 
-       Feminino = A:G
-       Masculino = H:N
+       A:G = FEMININO
+       H:N = MASCULINO
 
-       Cada bloco começa com o nome
-       da categoria.
+       Nós vamos procurar o título
+       em TODAS as linhas.
 
-       Exemplo:
-
-       A Feminino       | A Masculino
-       Código...        | Código...
-       atletas...       | atletas...
-
-       depois:
-
-       B Feminino       | B Masculino
+       Mesmo que não existam atletas,
+       a categoria será adicionada.
     */
 
 
-    let categoriaFeminino =
-        "";
+    let categoriaFeminino = "";
 
-    let categoriaMasculino =
-        "";
+    let categoriaMasculino = "";
 
 
     for (
@@ -886,49 +786,76 @@ function lerGeral(
             linhas[r];
 
 
-        /* ---------------------------------------------
-           VERIFICAR TÍTULO FEMININO
-        --------------------------------------------- */
+        /*
+           ---------------------------------------------
+           FEMININO
+           ---------------------------------------------
+        */
 
-        const tituloF =
-            nomeCategoria(
+        const novaCategoriaF =
+            identificarCategoria(
                 linha[0]
             );
 
 
         if (
-            tituloF
+            novaCategoriaF
         ) {
 
             categoriaFeminino =
-                tituloF;
+                novaCategoriaF;
+
+
+            /*
+               MUITO IMPORTANTE:
+
+               adiciona a categoria mesmo
+               que não tenha nenhum atleta.
+            */
+
+            adicionarCategoria(
+                categoriaFeminino
+            );
 
         }
 
 
-        /* ---------------------------------------------
-           VERIFICAR TÍTULO MASCULINO
-        --------------------------------------------- */
+        /*
+           ---------------------------------------------
+           MASCULINO
+           ---------------------------------------------
+        */
 
-        const tituloM =
-            nomeCategoria(
+        const novaCategoriaM =
+            identificarCategoria(
                 linha[7]
             );
 
 
         if (
-            tituloM
+            novaCategoriaM
         ) {
 
             categoriaMasculino =
-                tituloM;
+                novaCategoriaM;
+
+
+            /*
+               adiciona mesmo que esteja vazio
+            */
+
+            adicionarCategoria(
+                categoriaMasculino
+            );
 
         }
 
 
-        /* ---------------------------------------------
-           ADICIONAR FEMININO
-        --------------------------------------------- */
+        /*
+           ---------------------------------------------
+           ATLETAS FEMININOS
+           ---------------------------------------------
+        */
 
         if (
             categoriaFeminino
@@ -943,9 +870,11 @@ function lerGeral(
         }
 
 
-        /* ---------------------------------------------
-           ADICIONAR MASCULINO
-        --------------------------------------------- */
+        /*
+           ---------------------------------------------
+           ATLETAS MASCULINOS
+           ---------------------------------------------
+        */
 
         if (
             categoriaMasculino
@@ -965,7 +894,7 @@ function lerGeral(
 
 
 /* =====================================================
-   LER ABA SUBS
+   LER SUBS
 ===================================================== */
 
 function lerSubs(
@@ -982,19 +911,9 @@ function lerSubs(
         );
 
 
-    /*
-       Mesma estrutura:
+    let categoriaFeminino = "";
 
-       A:G = lado esquerdo
-       H:N = lado direito
-    */
-
-
-    let categoriaFeminino =
-        "";
-
-    let categoriaMasculino =
-        "";
+    let categoriaMasculino = "";
 
 
     for (
@@ -1007,49 +926,59 @@ function lerSubs(
             linhas[r];
 
 
-        /* ---------------------------------------------
+        /*
            FEMININO / MISTA
-        --------------------------------------------- */
+        */
 
-        const tituloF =
-            nomeCategoria(
+        const novaCategoriaF =
+            identificarCategoria(
                 linha[0]
             );
 
 
         if (
-            tituloF
+            novaCategoriaF
         ) {
 
             categoriaFeminino =
-                tituloF;
+                novaCategoriaF;
+
+
+            adicionarCategoria(
+                categoriaFeminino
+            );
 
         }
 
 
-        /* ---------------------------------------------
+        /*
            MASCULINO
-        --------------------------------------------- */
+        */
 
-        const tituloM =
-            nomeCategoria(
+        const novaCategoriaM =
+            identificarCategoria(
                 linha[7]
             );
 
 
         if (
-            tituloM
+            novaCategoriaM
         ) {
 
             categoriaMasculino =
-                tituloM;
+                novaCategoriaM;
+
+
+            adicionarCategoria(
+                categoriaMasculino
+            );
 
         }
 
 
-        /* ---------------------------------------------
-           ADICIONAR FEMININO
-        --------------------------------------------- */
+        /*
+           ATLETAS FEMININOS / MISTA
+        */
 
         if (
             categoriaFeminino
@@ -1064,9 +993,9 @@ function lerSubs(
         }
 
 
-        /* ---------------------------------------------
-           ADICIONAR MASCULINO
-        --------------------------------------------- */
+        /*
+           ATLETAS MASCULINOS
+        */
 
         if (
             categoriaMasculino
@@ -1099,14 +1028,6 @@ function removerDuplicados(
 
     lista.forEach(
         atleta => {
-
-            /*
-               A categoria faz parte da chave.
-
-               Assim, o mesmo código pode existir
-               em categorias diferentes sem que
-               uma categoria apague a outra.
-            */
 
             const chave =
                 normalizar(
@@ -1156,143 +1077,29 @@ function criarFiltro() {
         );
 
 
-    select.innerHTML = "";
+    select.innerHTML = `
+
+        <option value="">
+
+            Selecione uma categoria
+
+        </option>
+
+    `;
 
 
     /*
-       PRIMEIRA OPÇÃO
+       Ordenar conforme a planilha
     */
-
-    const primeira =
-        document.createElement(
-            "option"
-        );
-
-
-    primeira.value =
-        "";
-
-
-    primeira.textContent =
-        "Selecione uma categoria";
-
-
-    select.appendChild(
-        primeira
-    );
-
-
-    /*
-       Pegar todas as categorias
-       que realmente foram encontradas
-    */
-
-    categorias =
-        [
-            ...new Set(
-                atletas
-                    .map(
-                        atleta =>
-                            atleta.categoria
-                    )
-                    .filter(
-                        categoria =>
-                            categoria
-                    )
-            )
-        ];
-
-
-    /*
-       Ordem desejada
-    */
-
-    const ordem = [
-
-        "Profissional Feminino",
-        "Profissional Masculino",
-
-        "A Feminino",
-        "A Masculino",
-
-        "B Feminino",
-        "B Masculino",
-
-        "C Feminino",
-        "C Masculino",
-
-        "D Feminino",
-        "D Masculino",
-
-        "E Feminino",
-        "E Masculino",
-
-        "40+ Feminino",
-        "40+ Masculino",
-
-        "50+ Feminino",
-        "50+ Masculino",
-
-        "60+ Feminino",
-        "60+ Masculino",
-
-        "Categoria Sub 10 - Mista",
-
-        "Sub12 Feminino",
-        "Sub12 Masculino",
-
-        "Sub14 Feminino",
-        "Sub14 Masculino",
-
-        "Sub16 Feminino",
-        "Sub16 Masculino",
-
-        "Sub18 Feminino",
-        "Sub18 Masculino"
-
-    ];
-
 
     categorias.sort(
         (a, b) => {
 
             const posA =
-                ordem.indexOf(a);
-
+                ordemCategorias.indexOf(a);
 
             const posB =
-                ordem.indexOf(b);
-
-
-            if (
-                posA === -1 &&
-                posB === -1
-            ) {
-
-                return a.localeCompare(
-                    b,
-                    "pt-BR"
-                );
-
-            }
-
-
-            if (
-                posA === -1
-            ) {
-
-                return 1;
-
-            }
-
-
-            if (
-                posB === -1
-            ) {
-
-                return -1;
-
-            }
+                ordemCategorias.indexOf(b);
 
 
             return posA - posB;
@@ -1302,7 +1109,9 @@ function criarFiltro() {
 
 
     /*
-       Criar opções
+       CRIAR TODAS AS OPÇÕES
+
+       MESMO AS QUE ESTÃO COM 0 ATLETAS.
     */
 
     categorias.forEach(
@@ -1331,7 +1140,7 @@ function criarFiltro() {
 
 
     console.log(
-        "CATEGORIAS ENCONTRADAS:",
+        "TODAS AS CATEGORIAS:",
         categorias
     );
 
@@ -1370,7 +1179,7 @@ function mostrarCategoria() {
 
 
     /*
-       Nenhuma categoria selecionada
+       Nenhuma categoria
     */
 
     if (
@@ -1408,7 +1217,8 @@ function mostrarCategoria() {
 
 
     /*
-       Filtrar EXATAMENTE a categoria
+       Filtrar somente a categoria
+       escolhida.
     */
 
     let lista =
@@ -1460,7 +1270,7 @@ function mostrarCategoria() {
 
 
     /*
-       Título
+       TÍTULO
     */
 
     document.getElementById(
@@ -1471,7 +1281,7 @@ function mostrarCategoria() {
 
 
     /*
-       Quantidade
+       QUANTIDADE
     */
 
     document.getElementById(
@@ -1481,7 +1291,7 @@ function mostrarCategoria() {
 
 
     /*
-       Tabela
+       TABELA
     */
 
     renderizarTabela(
@@ -1506,7 +1316,7 @@ function renderizarTabela(
 
 
     /*
-       Nenhum atleta
+       CATEGORIA SEM ATLETAS
     */
 
     if (
@@ -1517,7 +1327,7 @@ function renderizarTabela(
 
             <div class="vazio">
 
-                Nenhum atleta encontrado
+                Nenhum atleta inscrito
                 nesta categoria.
 
             </div>
@@ -1588,10 +1398,6 @@ function renderizarTabela(
     `;
 
 
-    /*
-       Adicionar cada atleta
-    */
-
     lista.forEach(
         atleta => {
 
@@ -1658,11 +1464,9 @@ function renderizarTabela(
 
 
                     <td>
-
                         ${escaparHtml(
                             atleta.confirmacao
                         )}
-
                     </td>
 
                 </tr>
@@ -1709,7 +1513,7 @@ document
 
 
 /* =====================================================
-   CARREGAR PLANILHA
+   INICIAR
 ===================================================== */
 
 async function iniciar() {
@@ -1717,7 +1521,7 @@ async function iniciar() {
     try {
 
         /*
-           Buscar Excel
+           CARREGAR EXCEL
         */
 
         const resposta =
@@ -1733,23 +1537,15 @@ async function iniciar() {
         ) {
 
             throw new Error(
-                "Não foi possível carregar a planilha."
+                "Não foi possível carregar o Excel."
             );
 
         }
 
 
-        /*
-           Converter para ArrayBuffer
-        */
-
         const dados =
             await resposta.arrayBuffer();
 
-
-        /*
-           Abrir Excel
-        */
 
         const workbook =
             XLSX.read(
@@ -1767,16 +1563,18 @@ async function iniciar() {
 
 
         /*
-           Limpar dados
+           LIMPAR
         */
 
         atletas = [];
 
+        categorias = [];
+
 
         /*
-           =================================================
-           LER SOMENTE GERAL
-           =================================================
+           =============================================
+           GERAL
+        =============================================
         */
 
         if (
@@ -1802,9 +1600,9 @@ async function iniciar() {
 
 
         /*
-           =================================================
-           LER SOMENTE SUBS
-           =================================================
+           =============================================
+           SUBS
+        =============================================
         */
 
         if (
@@ -1820,17 +1618,10 @@ async function iniciar() {
             );
 
         }
-        else {
-
-            throw new Error(
-                "A aba Subs não foi encontrada."
-            );
-
-        }
 
 
         /*
-           Remover duplicados
+           REMOVER DUPLICADOS
         */
 
         atletas =
@@ -1840,14 +1631,14 @@ async function iniciar() {
 
 
         /*
-           Criar filtro
+           CRIAR FILTRO
         */
 
         criarFiltro();
 
 
         /*
-           Mostrar estado inicial
+           ESTADO INICIAL
         */
 
         document.getElementById(
@@ -1876,22 +1667,23 @@ async function iniciar() {
 
 
         /*
-           LOGS PARA CONFERIR
+           CONFERÊNCIA NO CONSOLE
         */
 
         console.log(
-            "TOTAL DE ATLETAS CARREGADOS:",
+            "TOTAL DE ATLETAS:",
             atletas.length
         );
 
 
         console.log(
-            "CATEGORIAS:",
+            "CATEGORIAS ENCONTRADAS:",
             categorias
         );
 
-
     }
+
+
     catch (
         erro
     ) {
@@ -1908,7 +1700,7 @@ async function iniciar() {
             <div class="erro">
 
                 <strong>
-                    Erro ao carregar os dados.
+                    Erro ao carregar a planilha.
                 </strong>
 
                 <br><br>
@@ -1927,7 +1719,7 @@ async function iniciar() {
 
 
 /* =====================================================
-   INICIAR SITE
+   EXECUTAR
 ===================================================== */
 
 iniciar();
