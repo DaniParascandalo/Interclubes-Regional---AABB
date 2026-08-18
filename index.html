@@ -13,10 +13,6 @@
 
 <style>
 
-/* =====================================================
-   GERAL
-===================================================== */
-
 * {
     box-sizing: border-box;
 }
@@ -53,9 +49,9 @@ header p {
 }
 
 
-/* =====================================================
-   MENU / FILTRO
-===================================================== */
+/* ================================
+   FILTRO
+================================ */
 
 .menu {
     background: white;
@@ -111,13 +107,12 @@ header p {
 .select-categoria:focus {
     outline: none;
     border-color: #0f766e;
-    box-shadow: 0 0 0 2px rgba(15,118,110,.15);
 }
 
 
-/* =====================================================
+/* ================================
    RESUMO
-===================================================== */
+================================ */
 
 .resumo {
     background: white;
@@ -147,15 +142,10 @@ header p {
     font-size: 16px;
 }
 
-.busca:focus {
-    outline: none;
-    border-color: #0f766e;
-}
 
-
-/* =====================================================
+/* ================================
    TABELA
-===================================================== */
+================================ */
 
 .categoria {
     background: white;
@@ -195,9 +185,9 @@ tr:hover {
 }
 
 
-/* =====================================================
+/* ================================
    TORNEIOS
-===================================================== */
+================================ */
 
 .torneios-alerta {
     color: red !important;
@@ -205,19 +195,9 @@ tr:hover {
 }
 
 
-/* =====================================================
-   STATUS
-===================================================== */
-
-.status {
-    color: #047857;
-    font-weight: bold;
-}
-
-
-/* =====================================================
+/* ================================
    MENSAGENS
-===================================================== */
+================================ */
 
 .vazio {
     background: white;
@@ -242,9 +222,9 @@ tr:hover {
 }
 
 
-/* =====================================================
+/* ================================
    CELULAR
-===================================================== */
+================================ */
 
 @media(max-width:700px) {
 
@@ -279,10 +259,6 @@ tr:hover {
 <body>
 
 
-<!-- =====================================================
-     CABEÇALHO
-===================================================== -->
-
 <header>
 
     <h1>🏆 Interclubes Regional</h1>
@@ -295,9 +271,9 @@ tr:hover {
 <div class="container">
 
 
-<!-- =====================================================
+<!-- ================================
      FILTRO
-===================================================== -->
+================================ -->
 
 <div class="menu">
 
@@ -306,7 +282,9 @@ tr:hover {
         class="botao-todos ativo"
         onclick="mostrarTodos()"
     >
+
         📋 TODOS OS ATLETAS
+
     </button>
 
 
@@ -314,7 +292,9 @@ tr:hover {
         class="label-categoria"
         for="selectCategoria"
     >
+
         CATEGORIA
+
     </label>
 
 
@@ -325,7 +305,9 @@ tr:hover {
     >
 
         <option value="TODOS">
+
             Todos os inscritos
+
         </option>
 
     </select>
@@ -333,40 +315,49 @@ tr:hover {
 </div>
 
 
-<!-- =====================================================
+<!-- ================================
      RESUMO
-===================================================== -->
+================================ -->
 
 <div class="resumo">
 
     <h2 id="titulo">
+
         Atletas inscritos
+
     </h2>
+
 
     <div
         class="contador"
         id="contador"
     >
+
         0
+
     </div>
+
 
     <input
         id="busca"
         class="busca"
+        type="text"
         placeholder="🔎 Pesquisar atleta..."
     >
 
 </div>
 
 
-<!-- =====================================================
-     CONTEÚDO
-===================================================== -->
+<!-- ================================
+     TABELA
+================================ -->
 
 <div id="conteudo">
 
     <div class="carregando">
+
         Carregando planilha...
+
     </div>
 
 </div>
@@ -392,7 +383,45 @@ let categoriaAtual = "TODOS";
 
 
 /* =====================================================
-   NORMALIZAR TEXTO
+   MAPA DAS CATEGORIAS
+===================================================== */
+
+const categorias = {
+
+    "Categoria A": [
+        "BTFA",
+        "BTMA"
+    ],
+
+    "Categoria B": [
+        "BTFB",
+        "BTMB"
+    ],
+
+    "Categoria C": [
+        "BTFC",
+        "BTMC"
+    ],
+
+    "Categoria D": [
+        "BTFD",
+        "BTMD"
+    ],
+
+    "Categoria E": [
+        "BTFE",
+        "BTME"
+    ],
+
+    "Profissional": [
+        "BTPRm"
+    ]
+
+};
+
+
+/* =====================================================
+   NORMALIZAR
 ===================================================== */
 
 function normalizar(texto) {
@@ -401,7 +430,10 @@ function normalizar(texto) {
         .trim()
         .toLowerCase()
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        );
 
 }
 
@@ -414,227 +446,78 @@ function escaparHtml(valor) {
 
     return String(valor ?? "")
 
-        .replace(/&/g, "&amp;")
+        .replace(
+            /&/g,
+            "&amp;"
+        )
 
-        .replace(/</g, "&lt;")
+        .replace(
+            /</g,
+            "&lt;"
+        )
 
-        .replace(/>/g, "&gt;")
+        .replace(
+            />/g,
+            "&gt;"
+        )
 
-        .replace(/"/g, "&quot;")
+        .replace(
+            /"/g,
+            "&quot;"
+        )
 
-        .replace(/'/g, "&#039;");
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
 
 
 /* =====================================================
-   TRANSFORMAR CATEGORIA DA PLANILHA
-=====================================================
-
-   Exemplos:
-
-   BTFA → Categoria A
-   BTMA → Categoria A
-
-   BTFB → Categoria B
-   BTMB → Categoria B
-
-   BTFC → Categoria C
-   BTMC → Categoria C
-
-   BTFD → Categoria D
-   BTMD → Categoria D
-
-   BTFE → Categoria E
-   BTME → Categoria E
-
+   TRANSFORMAR CÓDIGO BT EM CATEGORIA
 ===================================================== */
 
-function transformarCategoria(valor) {
+function descobrirCategoria(bt) {
 
-    const texto =
-        String(valor || "")
+    const codigo =
+        String(bt || "")
             .trim()
             .toUpperCase();
 
 
-    if (!texto) {
-
-        return "";
-
-    }
-
-
-    /* =========================================
-       SE JÁ ESTIVER COMO CATEGORIA A
-       Categoria B etc.
-    ========================================= */
-
-    const categoriaDireta =
-        texto.match(
-            /^CATEGORIA\s+([A-Z0-9]+)/
-        );
-
-
-    if (categoriaDireta) {
-
-        return "Categoria " +
-            categoriaDireta[1];
-
-    }
-
-
-    /* =========================================
-       CATEGORIAS BTFA / BTMA / BTFB / BTMB
-    ========================================= */
-
-    const categoriaBT =
-        texto.match(
-            /^BT[A-Z]([A-Z0-9])$/
-        );
-
-
-    if (categoriaBT) {
-
-        return "Categoria " +
-            categoriaBT[1];
-
-    }
-
-
-    /* =========================================
-       OUTROS FORMATOS QUE TERMINAM EM LETRA
-    ========================================= */
-
-    const ultimaLetra =
-        texto.match(
-            /([A-Z])$/
-        );
-
-
-    if (
-        ultimaLetra &&
-        texto.length >= 2
-    ) {
-
-        const letra =
-            ultimaLetra[1];
-
-        return "Categoria " +
-            letra;
-
-    }
-
-
-    return texto;
-
-}
-
-
-/* =====================================================
-   LER VALOR DE UMA COLUNA
-===================================================== */
-
-function pegarValor(objeto, nomes) {
-
     for (
-        let i = 0;
-        i < nomes.length;
-        i++
+        const categoria in categorias
     ) {
 
-        const nome =
-            nomes[i];
+        const codigos =
+            categorias[categoria];
 
 
-        if (
-            Object.prototype.hasOwnProperty.call(
-                objeto,
-                nome
-            )
-        ) {
-
-            const valor =
-                objeto[nome];
+        const encontrado =
+            codigos.some(
+                codigoCategoria =>
+                    codigoCategoria.toUpperCase()
+                    === codigo
+            );
 
 
-            if (
-                valor !== undefined &&
-                valor !== null &&
-                String(valor).trim() !== ""
-            ) {
+        if (encontrado) {
 
-                return valor;
-
-            }
+            return categoria;
 
         }
 
     }
 
 
-    return "";
+    return codigo;
 
 }
 
 
 /* =====================================================
-   LOCALIZAR COLUNA POR NOME
-===================================================== */
-
-function localizarColuna(
-    objeto,
-    palavras
-) {
-
-    const chaves =
-        Object.keys(objeto);
-
-
-    for (
-        let i = 0;
-        i < chaves.length;
-        i++
-    ) {
-
-        const chave =
-            chaves[i];
-
-
-        const chaveNormalizada =
-            normalizar(chave);
-
-
-        for (
-            let j = 0;
-            j < palavras.length;
-            j++
-        ) {
-
-            if (
-                chaveNormalizada.includes(
-                    normalizar(
-                        palavras[j]
-                    )
-                )
-            ) {
-
-                return objeto[chave];
-
-            }
-
-        }
-
-    }
-
-
-    return "";
-
-}
-
-
-/* =====================================================
-   CONVERTER TORNEIOS
+   TORNEIOS
 ===================================================== */
 
 function numeroTorneios(valor) {
@@ -673,7 +556,7 @@ function numeroTorneios(valor) {
 
 
 /* =====================================================
-   VERIFICAR TORNEIOS
+   COR DOS TORNEIOS
 ===================================================== */
 
 function classeTorneios(valor) {
@@ -681,11 +564,6 @@ function classeTorneios(valor) {
     const numero =
         numeroTorneios(valor);
 
-
-    /*
-       0 e 1 = vermelho
-       2 ou mais = normal
-    */
 
     if (
         numero !== null &&
@@ -724,7 +602,7 @@ async function carregarExcel() {
         ) {
 
             throw new Error(
-                "Não foi possível encontrar a planilha."
+                "Não foi possível carregar a planilha."
             );
 
         }
@@ -744,20 +622,24 @@ async function carregarExcel() {
 
 
         console.log(
-            "Abas encontradas:",
+            "Abas:",
             workbook.SheetNames
         );
 
 
-        /* =================================================
-           PROCURAR LISTA AABB
-        ================================================= */
+        /* =============================================
+           PEGAR ABA LISTA AABB
+        ============================================= */
 
-        if (
-            !workbook.SheetNames.includes(
-                "Lista AABB"
-            )
-        ) {
+        const nomeAba =
+            workbook.SheetNames.find(
+                nome =>
+                    normalizar(nome)
+                    === "lista aabb"
+            );
+
+
+        if (!nomeAba) {
 
             throw new Error(
                 "A aba Lista AABB não foi encontrada."
@@ -768,199 +650,182 @@ async function carregarExcel() {
 
         const sheet =
             workbook.Sheets[
-                "Lista AABB"
+                nomeAba
             ];
 
 
-        const dadosLista =
+        /* =============================================
+           LER COMO MATRIZ
+        ============================================= */
+
+        const linhas =
             XLSX.utils.sheet_to_json(
                 sheet,
                 {
+                    header: 1,
                     defval: ""
                 }
             );
 
 
+        if (
+            linhas.length < 2
+        ) {
+
+            throw new Error(
+                "A aba Lista AABB está vazia."
+            );
+
+        }
+
+
+        /* =============================================
+           CABEÇALHO
+        ============================================= */
+
+        const cabecalho =
+            linhas[0];
+
+
         console.log(
-            "Quantidade de linhas da Lista AABB:",
-            dadosLista.length
+            "Cabeçalho:",
+            cabecalho
         );
 
 
-        /* =================================================
+        /* =============================================
+           LOCALIZAR COLUNAS
+        ============================================= */
+
+        const colunaCodigo =
+            cabecalho.findIndex(
+                coluna =>
+                    normalizar(coluna)
+                    === "reg. cbt"
+            );
+
+
+        const colunaNome =
+            cabecalho.findIndex(
+                coluna =>
+                    normalizar(coluna)
+                    === "nome"
+            );
+
+
+        const colunaSexo =
+            cabecalho.findIndex(
+                coluna =>
+                    normalizar(coluna)
+                    === "sexo"
+            );
+
+
+        const colunaClube =
+            cabecalho.findIndex(
+                coluna =>
+                    normalizar(coluna)
+                    === "clube"
+            );
+
+
+        const colunaBT =
+            cabecalho.findIndex(
+                coluna =>
+                    normalizar(coluna)
+                    === "bt"
+            );
+
+
+        const colunaTorneios =
+            cabecalho.findIndex(
+                coluna =>
+                    normalizar(coluna)
+                    ===
+                    "torneios jogados (01/2026)"
+            );
+
+
+        console.log(
+            "Colunas:",
+            {
+                codigo: colunaCodigo,
+                nome: colunaNome,
+                sexo: colunaSexo,
+                clube: colunaClube,
+                bt: colunaBT,
+                torneios: colunaTorneios
+            }
+        );
+
+
+        /* =============================================
+           VALIDAR
+        ============================================= */
+
+        if (
+            colunaNome === -1 ||
+            colunaBT === -1
+        ) {
+
+            throw new Error(
+                "Não consegui localizar as colunas Nome e BT da Lista AABB."
+            );
+
+        }
+
+
+        /* =============================================
            TRANSFORMAR ATLETAS
-        ================================================= */
+        ============================================= */
 
         todosAtletas =
-            dadosLista
+            linhas
+                .slice(1)
 
                 .map(
-                    atleta => {
+                    linha => {
 
-
-                        /* ===============================
-                           CÓDIGO
-                        =============================== */
-
-                        const codigo =
-                            pegarValor(
-                                atleta,
-                                [
-                                    "Reg. CBT",
-                                    "Reg CBT",
-                                    "Código",
-                                    "Codigo",
-                                    "Código CBT"
-                                ]
-                            );
-
-
-                        /* ===============================
-                           NOME
-                        =============================== */
-
-                        const nome =
-                            pegarValor(
-                                atleta,
-                                [
-                                    "Nome"
-                                ]
-                            );
-
-
-                        /* ===============================
-                           CLUBE
-                        =============================== */
-
-                        const clube =
-                            pegarValor(
-                                atleta,
-                                [
-                                    "Clube"
-                                ]
-                            );
-
-
-                        /* ===============================
-                           CATEGORIA
-                        =============================== */
-
-                        let categoria =
-                            pegarValor(
-                                atleta,
-                                [
-                                    "Categoria"
-                                ]
-                            );
-
-
-                        /*
-                           Se não encontrar uma coluna
-                           exatamente chamada Categoria,
-                           procura qualquer coluna que
-                           contenha categoria.
-                        */
-
-                        if (
-                            !categoria
-                        ) {
-
-                            categoria =
-                                localizarColuna(
-                                    atleta,
-                                    [
-                                        "categoria"
-                                    ]
-                                );
-
-                        }
-
-
-                        categoria =
-                            transformarCategoria(
-                                categoria
-                            );
-
-
-                        /* ===============================
-                           IDADE
-                        =============================== */
-
-                        const idade =
-                            pegarValor(
-                                atleta,
-                                [
-                                    "Idade"
-                                ]
-                            );
-
-
-                        /* ===============================
-                           TORNEIOS
-                        =============================== */
-
-                        let torneios =
-                            pegarValor(
-                                atleta,
-                                [
-                                    "Torneios Jogados (01/2026)",
-                                    "Torneios Jogados",
-                                    "Torneios",
-                                    "Torneios Jogados 01/2026"
-                                ]
-                            );
-
-
-                        if (
-                            torneios === ""
-                        ) {
-
-                            torneios =
-                                localizarColuna(
-                                    atleta,
-                                    [
-                                        "torneios"
-                                    ]
-                                );
-
-                        }
-
-
-                        /* ===============================
-                           SEXO
-                        =============================== */
-
-                        const sexo =
-                            pegarValor(
-                                atleta,
-                                [
-                                    "Sexo"
-                                ]
-                            );
+                        const bt =
+                            linha[
+                                colunaBT
+                            ];
 
 
                         return {
 
                             codigo:
-                                codigo,
+                                colunaCodigo >= 0
+                                    ? linha[colunaCodigo]
+                                    : "",
 
                             nome:
-                                nome,
-
-                            clube:
-                                clube,
-
-                            categoria:
-                                categoria,
-
-                            idade:
-                                idade,
-
-                            torneios:
-                                torneios,
+                                linha[
+                                    colunaNome
+                                ],
 
                             sexo:
-                                sexo
+                                colunaSexo >= 0
+                                    ? linha[colunaSexo]
+                                    : "",
+
+                            clube:
+                                colunaClube >= 0
+                                    ? linha[colunaClube]
+                                    : "",
+
+                            bt:
+                                bt,
+
+                            categoria:
+                                descobrirCategoria(
+                                    bt
+                                ),
+
+                            torneios:
+                                colunaTorneios >= 0
+                                    ? linha[colunaTorneios]
+                                    : ""
 
                         };
 
@@ -968,93 +833,60 @@ async function carregarExcel() {
                 )
 
 
-                /* =========================================
-                   REMOVER LINHAS SEM NOME
-                ========================================= */
-
                 .filter(
-                    atleta => {
-
-                        return (
-                            atleta.nome &&
-                            String(
-                                atleta.nome
-                            ).trim() !== ""
-                        );
-
-                    }
+                    atleta =>
+                        atleta.nome &&
+                        String(
+                            atleta.nome
+                        ).trim() !== ""
                 );
 
 
-        /* =================================================
-           REMOVER CABEÇALHOS
-        ================================================= */
-
-        todosAtletas =
-            todosAtletas.filter(
-                atleta => {
-
-                    const nome =
-                        normalizar(
-                            atleta.nome
-                        );
-
-
-                    return (
-                        nome !== "nome" &&
-                        nome !== "codigo" &&
-                        nome !== "clube" &&
-                        nome !== "categoria"
-                    );
-
-                }
-            );
-
-
-        /* =================================================
-           REMOVER DUPLICADOS
-        ================================================= */
-
-        todosAtletas =
-            removerDuplicados(
-                todosAtletas
-            );
-
-
         console.log(
-            "Atletas carregados:",
+            "Total de atletas:",
             todosAtletas.length
         );
 
 
         console.log(
-            "Categorias encontradas:",
-            [...new Set(
-                todosAtletas.map(
-                    atleta =>
+            "Categorias:",
+            todosAtletas.reduce(
+                (resultado, atleta) => {
+
+                    resultado[
                         atleta.categoria
-                )
-            )]
+                    ] =
+                        (
+                            resultado[
+                                atleta.categoria
+                            ] || 0
+                        ) + 1;
+
+                    return resultado;
+
+                },
+                {}
+            )
         );
 
 
-        /* =================================================
+        /* =============================================
            CRIAR FILTRO
-        ================================================= */
+        ============================================= */
 
         criarFiltro();
 
 
-        /* =================================================
-           MOSTRAR TODOS
-        ================================================= */
+        /* =============================================
+           MOSTRAR
+        ============================================= */
 
         mostrar();
 
-
     }
 
-    catch(erro) {
+
+    catch (erro) {
 
         console.error(
             erro
@@ -1077,16 +909,6 @@ async function carregarExcel() {
                     erro.message
                 )}
 
-                <br><br>
-
-                Arquivo esperado:
-
-                <strong>
-                    ${escaparHtml(
-                        arquivoExcel
-                    )}
-                </strong>
-
             </div>
 
         `;
@@ -1097,71 +919,7 @@ async function carregarExcel() {
 
 
 /* =====================================================
-   REMOVER DUPLICADOS
-===================================================== */
-
-function removerDuplicados(
-    lista
-) {
-
-    const mapa =
-        new Map();
-
-
-    lista.forEach(
-        atleta => {
-
-
-            const codigo =
-                String(
-                    atleta.codigo || ""
-                )
-                    .trim()
-                    .toLowerCase();
-
-
-            const nome =
-                normalizar(
-                    atleta.nome
-                );
-
-
-            /*
-               Prioriza código.
-               Se não tiver código,
-               usa nome.
-            */
-
-            const chave =
-                codigo ||
-                nome;
-
-
-            if (
-                chave &&
-                !mapa.has(chave)
-            ) {
-
-                mapa.set(
-                    chave,
-                    atleta
-                );
-
-            }
-
-        }
-    );
-
-
-    return Array.from(
-        mapa.values()
-    );
-
-}
-
-
-/* =====================================================
-   CRIAR FILTRO DE CATEGORIAS
+   CRIAR FILTRO
 ===================================================== */
 
 function criarFiltro() {
@@ -1172,112 +930,60 @@ function criarFiltro() {
         );
 
 
-    /* =========================================
-       LIMPAR FILTRO
-    ========================================= */
-
     select.innerHTML = "";
 
 
-    /* =========================================
+    /* =============================================
        TODOS
-    ========================================= */
+    ============================================= */
 
-    const todos =
+    const opcaoTodos =
         document.createElement(
             "option"
         );
 
 
-    todos.value =
+    opcaoTodos.value =
         "TODOS";
 
 
-    todos.textContent =
+    opcaoTodos.textContent =
         "Todos os inscritos";
 
 
     select.appendChild(
-        todos
+        opcaoTodos
     );
 
 
-    /* =========================================
-       PEGAR CATEGORIAS DOS ATLETAS
-    ========================================= */
+    /* =============================================
+       CATEGORIAS
+    ============================================= */
 
-    const categorias =
-        [
-            ...new Set(
-
-                todosAtletas
-
-                    .map(
-                        atleta =>
-                            atleta.categoria
-                    )
-
-                    .filter(
-                        categoria =>
-                            categoria &&
-                            categoria.trim() !== ""
-                    )
-
-            )
-        ];
-
-
-    /* =========================================
-       ORDENAR
-    ========================================= */
-
-    categorias.sort(
-        (a, b) => {
-
-            return a.localeCompare(
-                b,
-                "pt-BR",
-                {
-                    numeric: true
-                }
-            );
-
-        }
-    );
-
-
-    /* =========================================
-       CRIAR OPÇÕES
-    ========================================= */
-
-    categorias.forEach(
+    Object.keys(
+        categorias
+    ).forEach(
         categoria => {
 
-            const option =
+            const opcao =
                 document.createElement(
                     "option"
                 );
 
 
-            option.value =
+            opcao.value =
                 categoria;
 
 
-            option.textContent =
+            opcao.textContent =
                 categoria;
 
 
             select.appendChild(
-                option
+                opcao
             );
 
         }
-    );
-
-
-    console.log(
-        "Filtro criado:",
-        categorias
     );
 
 }
@@ -1323,25 +1029,23 @@ function selecionarCategoria() {
         ).value;
 
 
-    const botao =
-        document.getElementById(
-            "botaoTodos"
-        );
-
-
     if (
         categoriaAtual ===
         "TODOS"
     ) {
 
-        botao.classList.add(
+        document.getElementById(
+            "botaoTodos"
+        ).classList.add(
             "ativo"
         );
 
     }
     else {
 
-        botao.classList.remove(
+        document.getElementById(
+            "botaoTodos"
+        ).classList.remove(
             "ativo"
         );
 
@@ -1359,15 +1063,11 @@ function selecionarCategoria() {
 
 function mostrar() {
 
-    const campoBusca =
-        document.getElementById(
-            "busca"
-        );
-
-
     const busca =
         normalizar(
-            campoBusca.value
+            document.getElementById(
+                "busca"
+            ).value
         );
 
 
@@ -1375,9 +1075,9 @@ function mostrar() {
         [...todosAtletas];
 
 
-    /* =========================================
-       FILTRO POR CATEGORIA
-    ========================================= */
+    /* =============================================
+       FILTRAR CATEGORIA
+    ============================================= */
 
     if (
         categoriaAtual !==
@@ -1386,26 +1086,17 @@ function mostrar() {
 
         lista =
             lista.filter(
-                atleta => {
-
-                    return (
-                        normalizar(
-                            atleta.categoria
-                        ) ===
-                        normalizar(
-                            categoriaAtual
-                        )
-                    );
-
-                }
+                atleta =>
+                    atleta.categoria ===
+                    categoriaAtual
             );
 
     }
 
 
-    /* =========================================
-       FILTRO DE PESQUISA
-    ========================================= */
+    /* =============================================
+       FILTRAR PESQUISA
+    ============================================= */
 
     if (
         busca
@@ -1422,8 +1113,7 @@ function mostrar() {
                                 atleta.nome,
                                 atleta.clube,
                                 atleta.categoria,
-                                atleta.idade,
-                                atleta.torneios
+                                atleta.bt
                             ].join(" ")
                         );
 
@@ -1438,37 +1128,35 @@ function mostrar() {
     }
 
 
-    /* =========================================
+    /* =============================================
        TÍTULO
-    ========================================= */
-
-    const titulo =
-        document.getElementById(
-            "titulo"
-        );
-
+    ============================================= */
 
     if (
         categoriaAtual ===
         "TODOS"
     ) {
 
-        titulo.textContent =
+        document.getElementById(
+            "titulo"
+        ).textContent =
             "Atletas inscritos";
 
     }
     else {
 
-        titulo.textContent =
+        document.getElementById(
+            "titulo"
+        ).textContent =
             "Inscritos - " +
             categoriaAtual;
 
     }
 
 
-    /* =========================================
+    /* =============================================
        CONTADOR
-    ========================================= */
+    ============================================= */
 
     document.getElementById(
         "contador"
@@ -1476,9 +1164,9 @@ function mostrar() {
         lista.length;
 
 
-    /* =========================================
-       RENDERIZAR
-    ========================================= */
+    /* =============================================
+       TABELA
+    ============================================= */
 
     renderizarTabela(
         lista
@@ -1561,15 +1249,11 @@ function renderizarTabela(
                         </th>
 
                         <th>
-                            Idade
+                            Sexo
                         </th>
 
                         <th>
                             Torneios
-                        </th>
-
-                        <th>
-                            Status
                         </th>
 
                     </tr>
@@ -1632,7 +1316,7 @@ function renderizarTabela(
 
                     <td>
                         ${escaparHtml(
-                            atleta.idade
+                            atleta.sexo
                         )}
                     </td>
 
@@ -1643,15 +1327,6 @@ function renderizarTabela(
 
                         ${escaparHtml(
                             atleta.torneios
-                        )}
-
-                    </td>
-
-
-                    <td class="status">
-
-                        ${escaparHtml(
-                            atleta.confirmacao || ""
                         )}
 
                     </td>
