@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -68,7 +69,6 @@ header p {
     border-radius: 14px;
     padding: 20px;
     margin-bottom: 20px;
-
     box-shadow: 0 2px 10px rgba(0,0,0,.06);
 }
 
@@ -271,6 +271,18 @@ tr:hover {
 
 
 /* =====================================================
+   TORNEIOS
+===================================================== */
+
+.torneios-alerta {
+
+    color: #ff0000;
+
+    font-weight: bold;
+}
+
+
+/* =====================================================
    STATUS
 ===================================================== */
 
@@ -279,26 +291,6 @@ tr:hover {
     color: #047857;
 
     font-weight: bold;
-}
-
-
-/* =====================================================
-   SUBTÍTULO
-===================================================== */
-
-.subtitulo {
-
-    padding: 18px;
-
-    background: #eef2f7;
-
-    font-size: 18px;
-
-    font-weight: bold;
-
-    color: #172033;
-
-    border-bottom: 1px solid #ddd;
 }
 
 
@@ -401,9 +393,6 @@ tr:hover {
 
 <div class="menu">
 
-
-    <!-- BOTÃO TODOS OS ATLETAS -->
-
     <button
         id="botaoTodos"
         class="botao-todos"
@@ -414,8 +403,6 @@ tr:hover {
 
     </button>
 
-
-    <!-- CATEGORIA -->
 
     <label
         class="label-categoria"
@@ -502,21 +489,15 @@ tr:hover {
 ===================================================== */
 
 const arquivoExcel =
-"IC26BT - REGIONAL - AABBM.xlsx";
+    "IC26BT - REGIONAL - AABBM.xlsx";
 
-
-/*
-   MODO:
-   INSCRITOS = trabalha com os atletas inscritos
-   TODOS     = trabalha com a Lista AABB
-*/
 
 let modo =
-"INSCRITOS";
+    "INSCRITOS";
 
 
 let categoriaAtual =
-"TODOS_INSCRITOS";
+    "TODOS_INSCRITOS";
 
 
 let todosAtletas = [];
@@ -569,6 +550,125 @@ function ehCabecalho(nome) {
         n === "torneios"
 
     );
+
+}
+
+
+/* =====================================================
+   IDENTIFICAR CATEGORIA
+===================================================== */
+
+function identificarCategoria(linha) {
+
+    for (let i = 0; i < linha.length; i++) {
+
+        const valor =
+            String(linha[i] || "").trim();
+
+        const normalizado =
+            normalizar(valor);
+
+        if (
+            normalizado.match(
+                /^categoria\s+[a-z0-9]+$/
+            )
+        ) {
+
+            return valor;
+
+        }
+
+    }
+
+    return "";
+
+}
+
+
+/* =====================================================
+   NORMALIZAR NOME DA CATEGORIA
+===================================================== */
+
+function normalizarCategoria(nome) {
+
+    const texto =
+        String(nome || "").trim();
+
+    const match =
+        texto.match(
+            /^Categoria\s+([A-Za-z0-9]+)/i
+        );
+
+    if (match) {
+
+        return "Categoria " +
+            match[1].toUpperCase();
+
+    }
+
+    return texto;
+
+}
+
+
+/* =====================================================
+   CONVERTER TORNEIOS
+===================================================== */
+
+function numeroTorneios(valor) {
+
+    if (
+        valor === null ||
+        valor === undefined ||
+        valor === ""
+    ) {
+
+        return null;
+
+    }
+
+    const numero =
+        Number(
+            String(valor)
+                .replace(",", ".")
+                .trim()
+        );
+
+    if (isNaN(numero)) {
+
+        return null;
+
+    }
+
+    return numero;
+
+}
+
+
+/* =====================================================
+   CLASSE DOS TORNEIOS
+===================================================== */
+
+function classeTorneios(valor) {
+
+    const numero =
+        numeroTorneios(valor);
+
+    /*
+       0 e 1 ficam vermelhos.
+       2 ou mais ficam normais.
+    */
+
+    if (
+        numero !== null &&
+        numero < 2
+    ) {
+
+        return "torneios-alerta";
+
+    }
+
+    return "";
 
 }
 
@@ -628,7 +728,6 @@ async function carregarExcel() {
             )
         ) {
 
-
             const sheet =
                 workbook.Sheets[
                     "Lista AABB"
@@ -659,6 +758,11 @@ async function carregarExcel() {
 
                             nome:
                                 atleta["Nome"] ||
+                                "",
+
+
+                            clube:
+                                atleta["Clube"] ||
                                 "",
 
 
@@ -707,6 +811,15 @@ async function carregarExcel() {
 
 
         /* =================================================
+           LIMPAR DADOS ANTERIORES
+        ================================================= */
+
+        inscritos = [];
+
+        grupos = {};
+
+
+        /* =================================================
            LER ABA GERAL
         ================================================= */
 
@@ -745,7 +858,7 @@ async function carregarExcel() {
 
 
         /* =================================================
-           CRIAR CATEGORIAS
+           CRIAR LISTA DE CATEGORIAS
         ================================================= */
 
         criarListaCategorias();
@@ -797,11 +910,10 @@ async function carregarExcel() {
 
 
 /* =====================================================
-   LER CATEGORIAS DAS ABAS DE INSCRIÇÃO
+   LER CATEGORIAS
 ===================================================== */
 
 function lerCategorias(sheet) {
-
 
     const linhas =
         XLSX.utils.sheet_to_json(
@@ -813,7 +925,7 @@ function lerCategorias(sheet) {
         );
 
 
-    let categoria =
+    let categoriaAtualPlanilha =
         "";
 
 
@@ -821,43 +933,35 @@ function lerCategorias(sheet) {
         linha => {
 
 
-            const primeiraColuna =
-                String(
-                    linha[0] ||
-                    ""
-                ).trim();
-
-
             /* =========================================
-               IDENTIFICAR CATEGORIA
+               VERIFICAR SE A LINHA É UMA CATEGORIA
             ========================================= */
 
-            if (
-                primeiraColuna.startsWith(
-                    "Categoria "
-                )
-            ) {
+            const categoriaEncontrada =
+                identificarCategoria(
+                    linha
+                );
 
 
-                categoria =
-                    primeiraColuna;
+            if (categoriaEncontrada) {
+
+                categoriaAtualPlanilha =
+                    normalizarCategoria(
+                        categoriaEncontrada
+                    );
 
 
                 if (
-                    !grupos[categoria]
+                    !grupos[
+                        categoriaAtualPlanilha
+                    ]
                 ) {
 
-                    grupos[categoria] = [];
+                    grupos[
+                        categoriaAtualPlanilha
+                    ] = [];
 
                 }
-
-
-                return;
-
-            }
-
-
-            if (!categoria) {
 
                 return;
 
@@ -865,24 +969,39 @@ function lerCategorias(sheet) {
 
 
             /* =========================================
-               PRIMEIRO BLOCO
+               SE NÃO TEM CATEGORIA, IGNORA
+            ========================================= */
+
+            if (
+                !categoriaAtualPlanilha
+            ) {
+
+                return;
+
+            }
+
+
+            /* =========================================
+               BLOCO FEMININO
+               A partir da coluna A
             ========================================= */
 
             adicionarInscrito(
                 linha,
                 0,
-                categoria
+                categoriaAtualPlanilha
             );
 
 
             /* =========================================
-               SEGUNDO BLOCO
+               BLOCO MASCULINO
+               A partir da coluna H
             ========================================= */
 
             adicionarInscrito(
                 linha,
                 7,
-                categoria
+                categoriaAtualPlanilha
             );
 
         }
@@ -903,45 +1022,39 @@ function adicionarInscrito(
 
 
     const codigo =
-        linha[inicio] ||
-        "";
+        linha[inicio] || "";
 
 
     const nome =
-        linha[inicio + 1] ||
-        "";
+        linha[inicio + 1] || "";
 
 
     const clube =
-        linha[inicio + 2] ||
-        "";
+        linha[inicio + 2] || "";
 
 
     const categoriaLinha =
-        linha[inicio + 3] ||
-        "";
+        linha[inicio + 3] || "";
 
 
     const idade =
-        linha[inicio + 4] ||
-        "";
+        linha[inicio + 4] || "";
 
 
     const confirmacao =
-        linha[inicio + 5] ||
-        "";
+        linha[inicio + 5] || "";
 
 
     const torneios =
-        linha[inicio + 6] ||
-        "";
+        linha[inicio + 6] || "";
 
 
     /* =========================================
-       SEM NOME
+       NÃO ADICIONAR LINHAS VAZIAS
     ========================================= */
 
     if (
+        !nome ||
         !String(nome).trim()
     ) {
 
@@ -951,7 +1064,7 @@ function adicionarInscrito(
 
 
     /* =========================================
-       IGNORAR CABEÇALHO
+       NÃO ADICIONAR CABEÇALHOS
     ========================================= */
 
     if (
@@ -964,21 +1077,17 @@ function adicionarInscrito(
 
 
     /* =========================================
-       PROCURAR NA LISTA AABB
+       NÃO ADICIONAR TEXTOS DE CATEGORIA
     ========================================= */
 
-    const encontrado =
-        todosAtletas.find(
-            atleta =>
+    if (
+        normalizar(nome)
+            .startsWith("categoria ")
+    ) {
 
-                normalizar(
-                    atleta.nome
-                ) ===
+        return;
 
-                normalizar(
-                    nome
-                )
-        );
+    }
 
 
     /* =========================================
@@ -987,101 +1096,36 @@ function adicionarInscrito(
 
     const atleta = {
 
-
         codigo:
-
-            codigo ||
-
-            (
-                encontrado
-                ? encontrado.codigo
-                : ""
-            ),
-
+            codigo,
 
         nome:
             nome,
 
-
         clube:
-
-            clube ||
-
-            (
-                encontrado
-                ? "AABBM"
-                : ""
-            ),
-
+            clube,
 
         categoria:
-
             categoriaLinha ||
-
-            (
-                encontrado
-                ? encontrado.categoria
-                : categoria
-            ),
-
+            categoria,
 
         idade:
-
-            idade ||
-
-            (
-                encontrado
-                ? encontrado.idade
-                : ""
-            ),
-
+            idade,
 
         confirmacao:
             confirmacao,
 
-
         torneios:
+            torneios,
 
-            torneios ||
-
-            (
-                encontrado
-                ? encontrado.torneios
-                : ""
-            )
+        grupo:
+            categoria
 
     };
 
 
     /* =========================================
-       EVITAR DUPLICADOS NA LISTA DE INSCRITOS
-    ========================================= */
-
-    const jaExiste =
-        inscritos.some(
-            item =>
-
-                normalizar(
-                    item.nome
-                ) ===
-
-                normalizar(
-                    atleta.nome
-                )
-        );
-
-
-    if (!jaExiste) {
-
-        inscritos.push(
-            atleta
-        );
-
-    }
-
-
-    /* =========================================
-       GRUPO DA CATEGORIA
+       ADICIONAR NO GRUPO
     ========================================= */
 
     if (
@@ -1093,37 +1137,72 @@ function adicionarInscrito(
     }
 
 
-    const existeNoGrupo =
-        grupos[categoria].some(
-            item =>
-
-                normalizar(
-                    item.nome
-                ) ===
-
-                normalizar(
-                    atleta.nome
-                )
-        );
+    grupos[categoria].push(
+        atleta
+    );
 
 
-    if (!existeNoGrupo) {
+    /* =========================================
+       ADICIONAR NA LISTA GERAL
+    ========================================= */
 
-        grupos[categoria].push(
-            atleta
-        );
-
-    }
+    inscritos.push(
+        atleta
+    );
 
 }
 
 
 /* =====================================================
-   CRIAR LISTA SUSPENSA
+   REMOVER DUPLICADOS
+===================================================== */
+
+function removerDuplicados(lista) {
+
+    const mapa =
+        new Map();
+
+
+    lista.forEach(
+        atleta => {
+
+            const chave =
+                String(
+                    atleta.codigo ||
+                    atleta.nome
+                )
+                    .trim()
+                    .toLowerCase();
+
+
+            if (
+                chave &&
+                !mapa.has(chave)
+            ) {
+
+                mapa.set(
+                    chave,
+                    atleta
+                );
+
+            }
+
+        }
+    );
+
+
+    return Array.from(
+        mapa.values()
+    );
+
+}
+
+
+/* =====================================================
+   CRIAR LISTA DE CATEGORIAS
 ===================================================== */
 
 function criarListaCategorias() {
-
 
     const select =
         document.getElementById(
@@ -1131,67 +1210,83 @@ function criarListaCategorias() {
         );
 
 
-    Object.keys(grupos)
-        .forEach(
-            categoria => {
+    select.innerHTML = `
+
+        <option value="TODOS_INSCRITOS">
+
+            Todos os inscritos
+
+        </option>
+
+    `;
 
 
-                const option =
-                    document.createElement(
-                        "option"
-                    );
+    const categorias =
+        Object.keys(
+            grupos
+        )
+            .filter(
+                categoria =>
+                    grupos[categoria] &&
+                    grupos[categoria].length > 0
+            )
+            .sort(
+                (a, b) =>
+                    a.localeCompare(
+                        b,
+                        "pt-BR",
+                        {
+                            numeric: true
+                        }
+                    )
+            );
 
 
-                option.value =
-                    categoria;
+    categorias.forEach(
+        categoria => {
 
-
-                option.textContent =
-                    categoria;
-
-
-                select.appendChild(
-                    option
+            const option =
+                document.createElement(
+                    "option"
                 );
 
-            }
-        );
+
+            option.value =
+                categoria;
+
+
+            option.textContent =
+                categoria;
+
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
 
 }
 
 
 /* =====================================================
-   BOTÃO TODOS OS ATLETAS
+   MOSTRAR TODOS
 ===================================================== */
 
 function mostrarTodos() {
-
 
     modo =
         "TODOS";
 
 
     categoriaAtual =
-        "TODAS_CATEGORIAS";
-
-
-    document
-        .getElementById(
-            "botaoTodos"
-        )
-        .classList.add(
-            "ativo"
-        );
+        "TODOS_INSCRITOS";
 
 
     document.getElementById(
         "selectCategoria"
-    ).value = "";
-
-
-    document.getElementById(
-        "busca"
-    ).value = "";
+    ).value =
+        "TODOS_INSCRITOS";
 
 
     mostrar();
@@ -1205,91 +1300,31 @@ function mostrarTodos() {
 
 function selecionarCategoria() {
 
-
     const select =
         document.getElementById(
             "selectCategoria"
         );
 
 
-    const valor =
+    categoriaAtual =
         select.value;
 
 
-    /*
-       SE ESCOLHER
-       "TODOS OS INSCRITOS"
-    */
-
     if (
-        valor ===
+        categoriaAtual ===
         "TODOS_INSCRITOS"
     ) {
 
+        modo =
+            "TODOS";
+
+    }
+    else {
 
         modo =
             "INSCRITOS";
 
-
-        categoriaAtual =
-            "TODOS_INSCRITOS";
-
-
-        document
-            .getElementById(
-                "botaoTodos"
-            )
-            .classList.remove(
-                "ativo"
-            );
-
-
-        document.getElementById(
-            "busca"
-        ).value = "";
-
-
-        mostrar();
-
-
-        return;
-
     }
-
-
-    /*
-       SE ESTIVER NA LISTA GERAL
-       O FILTRO SERÁ NA LISTA AABB
-    */
-
-    if (
-        modo ===
-        "TODOS"
-    ) {
-
-        categoriaAtual =
-            valor;
-
-
-    }
-
-
-    /*
-       SE ESTIVER NOS INSCRITOS
-       O FILTRO SERÁ NOS INSCRITOS
-    */
-
-    else {
-
-        categoriaAtual =
-            valor;
-
-    }
-
-
-    document.getElementById(
-        "busca"
-    ).value = "";
 
 
     mostrar();
@@ -1298,373 +1333,10 @@ function selecionarCategoria() {
 
 
 /* =====================================================
-   VERIFICAR CATEGORIA DA LISTA GERAL
-===================================================== */
-
-function categoriaEhCompativel(
-    categoriaAtleta,
-    categoriaSelecionada
-) {
-
-
-    const atleta =
-        normalizar(
-            categoriaAtleta
-        );
-
-
-    const selecionada =
-        normalizar(
-            categoriaSelecionada
-        );
-
-
-    /* =========================================
-       PROFISSIONAL
-    ========================================= */
-
-    if (
-        selecionada.includes(
-            "profissional"
-        )
-    ) {
-
-        return atleta.includes(
-            "profissional"
-        );
-
-    }
-
-
-    /* =========================================
-       A B C D E
-    ========================================= */
-
-    if (
-        /^categoria [abcde]$/.test(
-            selecionada
-        )
-    ) {
-
-
-        const letra =
-            selecionada.replace(
-                "categoria ",
-                ""
-            );
-
-
-        return (
-            atleta === letra ||
-            atleta ===
-            "bt" + letra
-        );
-
-    }
-
-
-    /* =========================================
-       40+
-    ========================================= */
-
-    if (
-        selecionada.includes(
-            "40+"
-        )
-    ) {
-
-        return (
-
-            atleta.includes(
-                "40"
-            )
-
-        );
-
-    }
-
-
-    /* =========================================
-       50+
-    ========================================= */
-
-    if (
-        selecionada.includes(
-            "50+"
-        )
-    ) {
-
-        return (
-
-            atleta.includes(
-                "50"
-            )
-
-        );
-
-    }
-
-
-    /* =========================================
-       60+
-    ========================================= */
-
-    if (
-        selecionada.includes(
-            "60+"
-        )
-    ) {
-
-        return (
-
-            atleta.includes(
-                "60"
-            )
-
-        );
-
-    }
-
-
-    /* =========================================
-       SUB 10
-    ========================================= */
-
-    if (
-        selecionada.includes(
-            "sub 10"
-        )
-    ) {
-
-        return atleta.includes(
-            "sub 10"
-        );
-
-    }
-
-
-    /* =========================================
-       SUB 12
-    ========================================= */
-
-    if (
-        selecionada.includes(
-            "sub 12"
-        )
-    ) {
-
-        return atleta.includes(
-            "sub 12"
-        );
-
-    }
-
-
-    /* =========================================
-       SUB 14
-    ========================================= */
-
-    if (
-        selecionada.includes(
-            "sub 14"
-        )
-    ) {
-
-        return atleta.includes(
-            "sub 14"
-        );
-
-    }
-
-
-    /* =========================================
-       SUB 16
-    ========================================= */
-
-    if (
-        selecionada.includes(
-            "sub 16"
-        )
-    ) {
-
-        return atleta.includes(
-            "sub 16"
-        );
-
-    }
-
-
-    /* =========================================
-       SUB 18
-    ========================================= */
-
-    if (
-        selecionada.includes(
-            "sub 18"
-        )
-    ) {
-
-        return atleta.includes(
-            "sub 18"
-        );
-
-    }
-
-
-    /* =========================================
-       COMPARAÇÃO NORMAL
-    ========================================= */
-
-    return atleta ===
-           selecionada;
-
-}
-
-
-/* =====================================================
-   OBTER LISTA
-===================================================== */
-
-function obterLista() {
-
-
-    /* =================================================
-       MODO INSCRITOS
-    ================================================= */
-
-    if (
-        modo ===
-        "INSCRITOS"
-    ) {
-
-
-        /* =============================================
-           TODOS OS INSCRITOS
-        ============================================= */
-
-        if (
-            categoriaAtual ===
-            "TODOS_INSCRITOS"
-        ) {
-
-            return [
-                ...inscritos
-            ];
-
-        }
-
-
-        /* =============================================
-           INSCRITOS DE UMA CATEGORIA
-        ============================================= */
-
-        return inscritos.filter(
-            atleta =>
-
-                categoriaEhCompativel(
-                    atleta.categoria,
-                    categoriaAtual
-                ) ||
-
-                normalizar(
-                    atleta.categoria
-                ) ===
-
-                normalizar(
-                    categoriaAtual
-                )
-
-        );
-
-    }
-
-
-    /* =================================================
-       MODO TODOS OS ATLETAS
-    ================================================= */
-
-    if (
-        modo ===
-        "TODOS"
-    ) {
-
-
-        /* =============================================
-           TODOS DA LISTA AABB
-        ============================================= */
-
-        if (
-            categoriaAtual ===
-            "TODAS_CATEGORIAS"
-        ) {
-
-            return [
-                ...todosAtletas
-            ];
-
-        }
-
-
-        /* =============================================
-           FILTRAR LISTA AABB POR CATEGORIA
-        ============================================= */
-
-        return todosAtletas.filter(
-            atleta =>
-
-                categoriaEhCompativel(
-                    atleta.categoria,
-                    categoriaAtual
-                )
-
-        );
-
-    }
-
-
-    return [];
-
-}
-
-
-/* =====================================================
-   BUSCAR STATUS DO ATLETA
-===================================================== */
-
-function buscarInscrito(
-    nome
-) {
-
-
-    return inscritos.find(
-        atleta =>
-
-            normalizar(
-                atleta.nome
-            ) ===
-
-            normalizar(
-                nome
-            )
-    );
-
-}
-
-
-/* =====================================================
-   MOSTRAR
+   MOSTRAR DADOS
 ===================================================== */
 
 function mostrar() {
-
-
-    let lista =
-        obterLista();
-
-
-    /* =================================================
-       PESQUISA
-    ================================================= */
 
     const busca =
         normalizar(
@@ -1674,126 +1346,171 @@ function mostrar() {
         );
 
 
-    if (busca) {
+    let lista = [];
 
+
+    /* =========================================
+       TODOS OS ATLETAS
+    ========================================= */
+
+    if (
+        categoriaAtual ===
+        "TODOS_INSCRITOS"
+    ) {
 
         lista =
-            lista.filter(
-                atleta =>
+            removerDuplicados(
+                todosAtletas
+            );
 
-                    normalizar(
-                        atleta.nome
-                    ).includes(
-                        busca
-                    )
+    }
 
+    /* =========================================
+       UMA CATEGORIA
+    ========================================= */
+
+    else {
+
+        lista =
+            removerDuplicados(
+                grupos[
+                    categoriaAtual
+                ] || []
             );
 
     }
 
 
-    /* =================================================
-       ORDENAR
-    ================================================= */
+    /* =========================================
+       FILTRO DE PESQUISA
+    ========================================= */
 
-    lista.sort(
-        (a,b) =>
+    if (busca) {
 
-            String(
-                a.nome
-            ).localeCompare(
-                String(
-                    b.nome
-                ),
-                "pt-BR"
-            )
-    );
+        lista =
+            lista.filter(
+                atleta => {
+
+                    const texto =
+                        normalizar(
+                            [
+                                atleta.codigo,
+                                atleta.nome,
+                                atleta.clube,
+                                atleta.categoria,
+                                atleta.idade,
+                                atleta.torneios
+                            ].join(" ")
+                        );
 
 
-    /* =================================================
+                    return texto.includes(
+                        busca
+                    );
+
+                }
+            );
+
+    }
+
+
+    /* =========================================
+       TÍTULO
+    ========================================= */
+
+    const titulo =
+        document.getElementById(
+            "titulo"
+        );
+
+
+    if (
+        categoriaAtual ===
+        "TODOS_INSCRITOS"
+    ) {
+
+        titulo.textContent =
+            "Atletas inscritos";
+
+    }
+    else {
+
+        titulo.textContent =
+            "Inscritos - " +
+            categoriaAtual;
+
+    }
+
+
+    /* =========================================
        CONTADOR
-    ================================================= */
+    ========================================= */
 
     document.getElementById(
         "contador"
-    ).innerText =
+    ).textContent =
         lista.length;
 
 
-    /* =================================================
-       TÍTULO
-    ================================================= */
+    /* =========================================
+       BOTÃO TODOS
+    ========================================= */
+
+    const botaoTodos =
+        document.getElementById(
+            "botaoTodos"
+        );
+
 
     if (
-        modo ===
-        "INSCRITOS"
+        categoriaAtual ===
+        "TODOS_INSCRITOS"
     ) {
 
-
-        if (
-            categoriaAtual ===
-            "TODOS_INSCRITOS"
-        ) {
-
-            document.getElementById(
-                "titulo"
-            ).innerText =
-                "Atletas inscritos";
-
-        }
-
-        else {
-
-            document.getElementById(
-                "titulo"
-            ).innerText =
-                "Inscritos - " +
-                categoriaAtual;
-
-        }
+        botaoTodos.classList.add(
+            "ativo"
+        );
 
     }
-
     else {
 
-
-        if (
-            categoriaAtual ===
-            "TODAS_CATEGORIAS"
-        ) {
-
-            document.getElementById(
-                "titulo"
-            ).innerText =
-                "Todos os atletas";
-
-        }
-
-        else {
-
-            document.getElementById(
-                "titulo"
-            ).innerText =
-                "Todos os atletas - " +
-                categoriaAtual;
-
-        }
+        botaoTodos.classList.remove(
+            "ativo"
+        );
 
     }
 
 
-    /* =================================================
-       NENHUM RESULTADO
-    ================================================= */
+    /* =========================================
+       RENDERIZAR
+    ========================================= */
+
+    renderizarTabela(
+        lista
+    );
+
+}
+
+
+/* =====================================================
+   RENDERIZAR TABELA
+===================================================== */
+
+function renderizarTabela(
+    lista
+) {
+
+    const conteudo =
+        document.getElementById(
+            "conteudo"
+        );
+
 
     if (
         !lista.length
     ) {
 
-
-        document.getElementById(
-            "conteudo"
-        ).innerHTML = `
+        conteudo.innerHTML = `
 
             <div class="vazio">
 
@@ -1803,15 +1520,10 @@ function mostrar() {
 
         `;
 
-
         return;
 
     }
 
-
-    /* =================================================
-       TABELA
-    ================================================= */
 
     let html = `
 
@@ -1820,43 +1532,16 @@ function mostrar() {
             <div class="categoria-titulo">
 
                 ${
-                    modo === "INSCRITOS"
+                    categoriaAtual ===
+                    "TODOS_INSCRITOS"
 
-                    ?
+                    ? "Atletas inscritos"
 
-                    (
-                        categoriaAtual ===
-                        "TODOS_INSCRITOS"
-
-                        ?
-
-                        "Atletas inscritos"
-
-                        :
-
-                        "Inscritos - " +
-                        categoriaAtual
-                    )
-
-                    :
-
-                    (
-                        categoriaAtual ===
-                        "TODAS_CATEGORIAS"
-
-                        ?
-
-                        "Todos os atletas"
-
-                        :
-
-                        "Todos os atletas - " +
-                        categoriaAtual
-                    )
+                    : "Inscritos - " +
+                      categoriaAtual
                 }
 
             </div>
-
 
             <table>
 
@@ -1896,149 +1581,86 @@ function mostrar() {
 
                 </thead>
 
-
                 <tbody>
-
     `;
 
-
-    /* =================================================
-       LINHAS
-    ================================================= */
 
     lista.forEach(
         atleta => {
 
-
-            /*
-               PROCURAR SE ELE ESTÁ INSCRITO
-            */
-
-            const inscrito =
-                buscarInscrito(
-                    atleta.nome
+            const classe =
+                classeTorneios(
+                    atleta.torneios
                 );
 
 
-            /*
-               CONFIRMADO SOMENTE COM OK
-            */
+            const torneios =
+                atleta.torneios !== "" &&
+                atleta.torneios !== null &&
+                atleta.torneios !== undefined
 
-            const confirmado =
+                    ? atleta.torneios
 
-                inscrito &&
-
-                normalizar(
-                    inscrito.confirmacao
-                ) ===
-                "ok";
+                    : "";
 
 
-            /*
-               SE ESTAMOS EM INSCRITOS,
-               USA O PRÓPRIO STATUS
-
-               SE ESTAMOS EM TODOS,
-               MOSTRA O STATUS CASO
-               ELE TAMBÉM ESTEJA INSCRITO
-            */
-
-            let statusHTML =
-                "";
-
-
-            if (
-                confirmado
-            ) {
-
-                statusHTML = `
-
-                    <span class="status">
-
-                        ● Confirmado
-
-                    </span>
-
-                `;
-
-            }
+            const status =
+                atleta.confirmacao
+                    ? atleta.confirmacao
+                    : "";
 
 
             html += `
 
                 <tr>
 
-
                     <td>
-
-                        ${
-                            atleta.codigo ||
-                            ""
-                        }
-
+                        ${escaparHtml(
+                            atleta.codigo
+                        )}
                     </td>
 
-
                     <td>
-
                         <strong>
-
-                            ${
-                                atleta.nome ||
-                                ""
-                            }
-
+                            ${escaparHtml(
+                                atleta.nome
+                            )}
                         </strong>
-
                     </td>
-
 
                     <td>
-
-                        ${
-                            atleta.clube ||
-                            "AABBM"
-                        }
-
+                        ${escaparHtml(
+                            atleta.clube
+                        )}
                     </td>
-
 
                     <td>
-
-                        ${
-                            atleta.categoria ||
-                            ""
-                        }
-
+                        ${escaparHtml(
+                            atleta.categoria
+                        )}
                     </td>
-
 
                     <td>
+                        ${escaparHtml(
+                            atleta.idade
+                        )}
+                    </td>
 
-                        ${
-                            atleta.idade ||
-                            ""
-                        }
+                    <td class="${classe}">
+
+                        ${escaparHtml(
+                            torneios
+                        )}
 
                     </td>
 
+                    <td class="status">
 
-                    <td>
-
-                        ${
-                            atleta.torneios ||
-                            ""
-                        }
+                        ${escaparHtml(
+                            status
+                        )}
 
                     </td>
-
-
-                    <td>
-
-                        ${statusHTML}
-
-                    </td>
-
 
                 </tr>
 
@@ -2059,10 +1681,46 @@ function mostrar() {
     `;
 
 
-    document.getElementById(
-        "conteudo"
-    ).innerHTML =
+    conteudo.innerHTML =
         html;
+
+}
+
+
+/* =====================================================
+   ESCAPAR HTML
+===================================================== */
+
+function escaparHtml(valor) {
+
+    return String(
+        valor ?? ""
+    )
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
 
@@ -2077,7 +1735,11 @@ document
     )
     .addEventListener(
         "input",
-        mostrar
+        function() {
+
+            mostrar();
+
+        }
     );
 
 
@@ -2092,3 +1754,4 @@ carregarExcel();
 </body>
 
 </html>
+```
